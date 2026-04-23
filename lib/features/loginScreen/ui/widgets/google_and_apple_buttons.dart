@@ -1,0 +1,54 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:weight_tracker/core/helper/assets.dart';
+import 'package:weight_tracker/core/helper/spacing.dart';
+import 'package:weight_tracker/core/theming/colors.dart';
+import 'package:weight_tracker/core/theming/styles.dart';
+import 'package:weight_tracker/core/widgets/app_text_button.dart';
+
+class GoogleAndAppleButtons extends StatelessWidget {
+  const GoogleAndAppleButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: AppTextButton(
+            onPressed: () {},
+            backgroundColor: ColorsManager.background,
+            shadowColor: Colors.transparent,
+            borderRadius: 32,
+            buttonHeight: 60,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(AppAssets.googleLogo, height: 24, width: 24),
+                horizentalSpace(8),
+                Text("Google", style: AppTextStyles.font14BoldSemiBold),
+              ],
+            ),
+          ),
+        ),
+        horizentalSpace(16),
+        Expanded(
+          child: AppTextButton(
+            onPressed: () {},
+            backgroundColor: ColorsManager.datkLighGray,
+            shadowColor: Colors.transparent,
+            borderRadius: 32,
+            buttonHeight: 60,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(AppAssets.appleLogo, height: 24, width: 24),
+                horizentalSpace(8),
+                Text("Apple", style: AppTextStyles.font14BoldSemiBold),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

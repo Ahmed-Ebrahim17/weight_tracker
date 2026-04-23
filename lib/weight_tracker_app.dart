@@ -16,7 +16,10 @@ class WeightTrackerApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
-          theme: ThemeData(scaffoldBackgroundColor: Colors.white),
+          theme: ThemeData(
+            scaffoldBackgroundColor: Colors.white,
+            fontFamily: "Manrope",
+          ),
           debugShowCheckedModeBanner: false,
           onGenerateRoute: appRouter.generateRoute,
           initialRoute: Routes.splashScreen,

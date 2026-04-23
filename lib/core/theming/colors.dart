@@ -46,7 +46,11 @@ class ColorsManager {
   static const Color onNeutral = Color(0xFFFFFFFF);
 
   static const Color gray6E7979 = Color(0xFF6E7979);
-
+  static const Color nearBlack = Color(0xFF1A1A1A);
   static const Color veryDarkGray = Color(0xFF181C1C);
   static const Color secondaryGray = Color(0xFF5C6363);
+  static const Color veryLightGray = Color(0xFFF7FAF9);
+
+  static const Color lightGray = Color(0xFFBEC9C8);
+  static const Color datkLighGray = Color(0XFFF1F4F3);
 }

@@ -9,8 +9,10 @@ class AppTextButton extends StatelessWidget {
   final double? verticalPadding;
   final double? buttonWidth;
   final double? buttonHeight;
-  final VoidCallback onpressed;
+  final VoidCallback? onPressed;
   final Widget? child;
+  final Color? shadowColor;
+  final double? shadowBlurRadius;
   const AppTextButton({
     super.key,
     this.borderRadius,
@@ -18,35 +20,50 @@ class AppTextButton extends StatelessWidget {
     this.verticalPadding,
     this.buttonWidth,
     this.buttonHeight,
-    required this.onpressed,
+    this.onPressed,
     this.backgroundColor,
     this.child,
+    this.shadowColor,
+    this.shadowBlurRadius,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      style: ButtonStyle(
-        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius ?? 16),
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor ??
+                (backgroundColor ?? ColorsManager.primaryBlue).withValues(alpha: 0.4),
+            blurRadius: shadowBlurRadius ?? 20,
+            offset: const Offset(0, 8),
           ),
-        ),
-        backgroundColor: WidgetStatePropertyAll(
-          backgroundColor ?? ColorsManager.primaryBlue,
-        ),
-        padding: WidgetStateProperty.all<EdgeInsets>(
-          EdgeInsets.symmetric(
-            horizontal: horizontalPadding?.w ?? 12.w,
-            vertical: verticalPadding?.h ?? 14.h,
-          ),
-        ),
-        fixedSize: WidgetStateProperty.all(
-          Size(buttonWidth?.w ?? double.maxFinite, buttonHeight?.h ?? 50.h),
-        ),
+        ],
       ),
-      onPressed: onpressed,
-      child: child!,
+      child: TextButton(
+        style: ButtonStyle(
+          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius ?? 16),
+            ),
+          ),
+          backgroundColor: WidgetStatePropertyAll(
+            backgroundColor ?? ColorsManager.primaryBlue,
+          ),
+          padding: WidgetStateProperty.all<EdgeInsets>(
+            EdgeInsets.symmetric(
+              horizontal: horizontalPadding?.w ?? 12.w,
+              vertical: verticalPadding?.h ?? 14.h,
+            ),
+          ),
+          fixedSize: WidgetStateProperty.all(
+            Size(buttonWidth?.w ?? double.maxFinite, buttonHeight?.h ?? 50.h),
+          ),
+        ),
+        onPressed: onPressed,
+        child: child!,
+      ),
     );
   }
 }

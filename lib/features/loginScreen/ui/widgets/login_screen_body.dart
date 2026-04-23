@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:weight_tracker/core/helper/spacing.dart';
+import 'package:weight_tracker/core/theming/colors.dart';
 import 'package:weight_tracker/core/widgets/app_text_button.dart';
 import 'package:weight_tracker/features/loginScreen/ui/widgets/app_logo_with_login_scren_header.dart';
 import 'package:weight_tracker/features/loginScreen/ui/widgets/dont_have_an_account.dart';

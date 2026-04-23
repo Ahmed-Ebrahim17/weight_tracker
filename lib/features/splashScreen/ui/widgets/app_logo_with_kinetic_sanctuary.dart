@@ -18,15 +18,21 @@ class AppLogoWithKineticSanctuary extends StatelessWidget {
           textAlign: TextAlign.center,
           text: TextSpan(
             children: [
-              TextSpan(text: 'Kinetic\n', style: AppTextStyles.font40Bold),
-              TextSpan(text: 'Sanctuary', style: AppTextStyles.font48Regular),
+              TextSpan(
+                text: 'Kinetic\n',
+                style: AppTextStyles.font40BoldVeryDarkGray,
+              ),
+              TextSpan(
+                text: 'Sanctuary',
+                style: AppTextStyles.font48RegularPrimaryDeepBlue,
+              ),
             ],
           ),
         ),
         verticalSpace(24),
         Text(
           'Align your energy. Master your rest.',
-          style: AppTextStyles.font18Light,
+          style: AppTextStyles.font18LightSecondaryGray,
         ),
       ],
     );
