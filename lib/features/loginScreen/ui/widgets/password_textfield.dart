@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:weight_tracker/core/constants/app_strings.dart';
 import 'package:weight_tracker/core/widgets/app_text_field.dart';
 
 import '../../../../core/helper/spacing.dart';
@@ -24,13 +25,13 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Password".toUpperCase(),
+              AppStrings.password.toUpperCase(),
               style: AppTextStyles.font12BoldNearBlack,
             ),
             GestureDetector(
               onTap: () {},
               child: Text(
-                "Forgot Password?".toUpperCase(),
+                AppStrings.forgotPassword.toUpperCase(),
                 style: AppTextStyles.font12BoldNearBlack.copyWith(
                   color: ColorsManager.primaryBlue,
                 ),
@@ -42,7 +43,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
         AppTextFormField(
           inputTextStyle: AppTextStyles.font16RegularNearBlack,
           backgroundColor: ColorsManager.veryLightGray,
-          hintText: "Enter your password",
+          hintText: AppStrings.enterPasswordHint,
           hintStyle: AppTextStyles.font16RegularLightGray,
           isObscureText: _isObscure,
           prefixIcon: Icon(
@@ -77,7 +78,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return "Please enter your password";
+              return AppStrings.passwordRequired;
             }
             return null;
           },

@@ -14,6 +14,16 @@ class AppTextStyles {
     fontWeight: FontWeightHelper.regular,
     color: ColorsManager.primaryDeepBlue,
   );
+  static TextStyle font24ExtraBoldPrimaryDeepBlue = TextStyle(
+    fontSize: 24.sp,
+    fontWeight: FontWeightHelper.extraBold,
+    color: ColorsManager.primaryDeepBlue,
+  );
+    static TextStyle font26ExtraBoldPrimaryDeepBlue = TextStyle(
+    fontSize: 26.sp,
+    fontWeight: FontWeightHelper.extraBold,
+    color: ColorsManager.nearBlack,
+  );
   static TextStyle font18LightSecondaryGray = TextStyle(
     fontSize: 18.sp,
     fontWeight: FontWeightHelper.light,
@@ -28,6 +38,11 @@ class AppTextStyles {
     color: ColorsManager.onPrimary,
     fontSize: 18.sp,
     fontWeight: FontWeightHelper.bold,
+  );
+   static TextStyle font18RegularNearBlack = TextStyle(
+    color: ColorsManager.nearBlack,
+    fontSize: 18.sp,
+    fontWeight: FontWeightHelper.regular,
   );
   static TextStyle font32BoldNearBlack = TextStyle(
     color: ColorsManager.nearBlack,
@@ -64,6 +79,18 @@ class AppTextStyles {
   static TextStyle font10BoldlightGray = TextStyle(
     color: ColorsManager.lightGray,
     fontSize: 10.sp,
+    fontWeight: FontWeightHelper.bold,
+  );
+
+ static TextStyle  font12RegularGray = TextStyle(
+    color: ColorsManager.gray6E7979,
+    fontSize: 12.sp,
+    fontWeight: FontWeightHelper.regular,
+  );
+
+  static TextStyle font24BoldNearBlack = TextStyle(
+    color: ColorsManager.nearBlack,
+    fontSize: 24.sp,
     fontWeight: FontWeightHelper.bold,
   );
 }

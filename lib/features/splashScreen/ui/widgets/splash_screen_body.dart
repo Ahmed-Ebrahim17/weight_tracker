@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:weight_tracker/core/constants/app_strings.dart';
 import 'package:weight_tracker/core/helper/extensions.dart';
 import 'package:weight_tracker/core/helper/spacing.dart';
 import 'package:weight_tracker/core/routing/routes.dart' show Routes;
@@ -29,7 +30,7 @@ class SplashScreenBody extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "ENTER THE FLOW",
+                  AppStrings.enterTheFlow,
                   style: AppTextStyles.font14BoldOnPrimary,
                 ),
                 horizentalSpace(16),

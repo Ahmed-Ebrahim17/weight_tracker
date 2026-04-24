@@ -7,8 +7,15 @@ import '../../../../core/helper/spacing.dart';
 import '../../../../core/theming/colors.dart';
 import '../../../../core/theming/styles.dart';
 
-class EmailAddressTextField extends StatelessWidget {
-  const EmailAddressTextField({super.key});
+class PasswordTextField extends StatefulWidget {
+  const PasswordTextField({super.key});
+
+  @override
+  State<PasswordTextField> createState() => _PasswordTextFieldState();
+}
+
+class _PasswordTextFieldState extends State<PasswordTextField> {
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -16,20 +23,32 @@ class EmailAddressTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppStrings.email.toUpperCase(),
+          AppStrings.password.toUpperCase(),
           style: AppTextStyles.font12BoldNearBlack,
         ),
         verticalSpace(8),
         AppTextFormField(
           inputTextStyle: AppTextStyles.font16RegularNearBlack,
           backgroundColor: ColorsManager.veryLightGray,
-          hintText: AppStrings.enterEmailHint,
+          hintText: AppStrings.enterPasswordHint,
           hintStyle: AppTextStyles.font16RegularLightGray,
-
+          isObscureText: _isObscure,
           prefixIcon: Icon(
-            Icons.email_outlined,
+            Icons.lock_outline,
             color: ColorsManager.neutral,
             size: 22.sp,
+          ),
+          suffixIcon: GestureDetector(
+            onTap: () {
+              setState(() {
+                _isObscure = !_isObscure;
+              });
+            },
+            child: Icon(
+              _isObscure ? Icons.visibility_off : Icons.visibility,
+              color: ColorsManager.neutral,
+              size: 22.sp,
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide.none,
@@ -44,7 +63,7 @@ class EmailAddressTextField extends StatelessWidget {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return AppStrings.emailRequired;
+              return AppStrings.passwordRequired;
             }
             return null;
           },
