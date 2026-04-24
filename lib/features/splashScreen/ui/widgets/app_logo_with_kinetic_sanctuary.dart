@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:weight_tracker/core/constants/app_strings.dart';
 import 'package:weight_tracker/core/helper/assets.dart';
 import 'package:weight_tracker/core/helper/spacing.dart';
 import 'package:weight_tracker/core/theming/styles.dart';
@@ -31,7 +32,7 @@ class AppLogoWithKineticSanctuary extends StatelessWidget {
         ),
         verticalSpace(24),
         Text(
-          'Align your energy. Master your rest.',
+          AppStrings.appTagline,
           style: AppTextStyles.font18LightSecondaryGray,
         ),
       ],

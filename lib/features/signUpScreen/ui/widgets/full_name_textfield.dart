@@ -7,8 +7,8 @@ import '../../../../core/helper/spacing.dart';
 import '../../../../core/theming/colors.dart';
 import '../../../../core/theming/styles.dart';
 
-class EmailAddressTextField extends StatelessWidget {
-  const EmailAddressTextField({super.key});
+class FullNameTextField extends StatelessWidget {
+  const FullNameTextField({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,18 +16,17 @@ class EmailAddressTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppStrings.email.toUpperCase(),
+          AppStrings.fullName.toUpperCase(),
           style: AppTextStyles.font12BoldNearBlack,
         ),
         verticalSpace(8),
         AppTextFormField(
           inputTextStyle: AppTextStyles.font16RegularNearBlack,
           backgroundColor: ColorsManager.veryLightGray,
-          hintText: AppStrings.enterEmailHint,
+          hintText: AppStrings.enterNameHint,
           hintStyle: AppTextStyles.font16RegularLightGray,
-
           prefixIcon: Icon(
-            Icons.email_outlined,
+            Icons.person_outline,
             color: ColorsManager.neutral,
             size: 22.sp,
           ),
@@ -44,7 +43,7 @@ class EmailAddressTextField extends StatelessWidget {
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return AppStrings.emailRequired;
+              return AppStrings.fullNameRequired;
             }
             return null;
           },

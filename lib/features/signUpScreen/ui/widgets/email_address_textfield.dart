@@ -25,7 +25,6 @@ class EmailAddressTextField extends StatelessWidget {
           backgroundColor: ColorsManager.veryLightGray,
           hintText: AppStrings.enterEmailHint,
           hintStyle: AppTextStyles.font16RegularLightGray,
-
           prefixIcon: Icon(
             Icons.email_outlined,
             color: ColorsManager.neutral,

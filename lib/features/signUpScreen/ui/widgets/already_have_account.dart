@@ -6,8 +6,8 @@ import '../../../../core/routing/routes.dart';
 import '../../../../core/theming/colors.dart';
 import '../../../../core/theming/styles.dart';
 
-class DontHaveAnAccount extends StatelessWidget {
-  const DontHaveAnAccount({super.key});
+class AlreadyHaveAccount extends StatelessWidget {
+  const AlreadyHaveAccount({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class DontHaveAnAccount extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          AppStrings.noAccount,
+          AppStrings.haveAccount,
           style: AppTextStyles.font14RegularNearBlack,
         ),
         TextButton(
@@ -23,11 +23,11 @@ class DontHaveAnAccount extends StatelessWidget {
             padding: WidgetStateProperty.all(EdgeInsets.zero),
           ),
           child: Text(
-            AppStrings.signUp,
-            style: AppTextStyles.font14BoldOnPrimary.copyWith(color: ColorsManager.primaryBlue),
+            AppStrings.login,
+            style: AppTextStyles.font14BoldOnPrimary.copyWith(color: ColorsManager.secondaryDark2),
           ),
           onPressed: () {
-            context.pushNamed(Routes.registerScreen);
+            context.pushNamed(Routes.loginScreen);
           },
         ),
       ],

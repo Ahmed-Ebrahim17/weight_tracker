@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:weight_tracker/core/constants/app_strings.dart';
 import 'package:weight_tracker/core/helper/spacing.dart';
 import 'package:weight_tracker/core/widgets/app_text_button.dart';
 import 'package:weight_tracker/features/loginScreen/ui/widgets/app_logo_with_login_scren_header.dart';
@@ -19,7 +20,7 @@ class LoginScreenBody extends StatelessWidget {
       padding: EdgeInsets.only(
         right: 24.w,
         left: 24.w,
-        bottom: 32.h,
+        bottom: 64.h,
         top: MediaQuery.of(context).size.height * 0.11,
       ),
       child: Column(
@@ -33,7 +34,7 @@ class LoginScreenBody extends StatelessWidget {
             onPressed: () {},
             buttonHeight: 60,
             borderRadius: 48,
-            child: Text("Login", style: AppTextStyles.font18BoldOnPrimary),
+            child: Text(AppStrings.login, style: AppTextStyles.font18BoldOnPrimary),
           ),
           verticalSpace(32),
           OrContinueWithDivider(),
