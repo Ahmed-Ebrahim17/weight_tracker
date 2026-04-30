@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weight_tracker/core/di/dependency_injection.dart';
 import 'package:weight_tracker/core/routing/routes.dart';
 import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
-import 'package:weight_tracker/features/auth/presentation/screens/home_screen.dart';
 import 'package:weight_tracker/features/auth/presentation/screens/login_screen.dart';
 import 'package:weight_tracker/features/auth/presentation/screens/register_screen.dart';
 import 'package:weight_tracker/features/splash/presentation/screens/splash_screen.dart';
@@ -27,8 +26,8 @@ class AppRouter {
             child: const RegisterScreen(),
           ),
         );
-        case Routes.homeScreen:
-        return MaterialPageRoute( builder: (context) => HomeScreen());    
+        // case Routes.homeScreen:
+        // return MaterialPageRoute( builder: (context) => HomeScreen());    
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
