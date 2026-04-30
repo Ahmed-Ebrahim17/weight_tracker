@@ -32,20 +32,18 @@ class AppDatabase extends _$AppDatabase {
   /// Get all weight entries (ordered by date descending)
   Future<List<WeightEntry>> getAllWeightEntries() {
     return (select(weightEntries)
-          ..orderBy([(t) => OrderingTerm(
-              expression: t.date,
-              mode: OrderingMode.desc,
-            )]))
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
+          ]))
         .get();
   }
 
   /// Get the latest weight entry
   Future<WeightEntry?> getLatestWeightEntry() async {
     final result = await (select(weightEntries)
-          ..orderBy([(t) => OrderingTerm(
-              expression: t.date,
-              mode: OrderingMode.desc,
-            ))]
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
+          ])
           ..limit(1))
         .getSingleOrNull();
     return result;
@@ -56,10 +54,9 @@ class AppDatabase extends _$AppDatabase {
     final cutoffDate = DateTime.now().subtract(Duration(days: days));
     return (select(weightEntries)
           ..where((t) => t.date.isBiggerOrEqual(Variable(cutoffDate)))
-          ..orderBy([(t) => OrderingTerm(
-              expression: t.date,
-              mode: OrderingMode.desc,
-            )]))
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
+          ]))
         .get();
   }
 
@@ -93,11 +90,12 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Get total number of weight entries
-  Future<int> getWeightEntriesCount() {
-    return (selectOnly(weightEntries)
+  Future<int> getWeightEntriesCount() async {
+    final result = await (selectOnly(weightEntries)
           ..addColumns([weightEntries.id.count()]))
         .map((row) => row.read<int>(weightEntries.id.count()))
-        .getSingle();
+        .getSingleOrNull();
+    return result ?? 0;
   }
 }
 

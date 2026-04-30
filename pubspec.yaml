@@ -31,8 +31,9 @@ dependencies:
   connectivity_plus: ^7.1.1
   cupertino_icons: ^1.0.8
   dartz: ^0.10.1
-  drift: ^2.17.0
-  drift_flutter: ^2.17.0
+  drift: ^2.31.0
+  drift_flutter: 0.2.8
+  equatable: ^2.0.5
   firebase_crashlytics: ^5.2.0
   flutter:
     sdk: flutter

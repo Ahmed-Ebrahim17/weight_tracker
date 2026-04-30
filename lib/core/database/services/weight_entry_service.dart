@@ -1,5 +1,4 @@
-import '../../database.dart';
-import '../tables/weight_entry_table.dart';
+import 'package:weight_tracker/core/database/database.dart';
 
 /// Service layer for weight entry operations
 /// Use this instead of calling database directly

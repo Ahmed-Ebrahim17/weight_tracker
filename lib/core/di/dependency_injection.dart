@@ -3,6 +3,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:weight_tracker/core/database/database.dart';
+import 'package:weight_tracker/core/database/services/weight_entry_service.dart';
 import 'package:weight_tracker/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:weight_tracker/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:weight_tracker/features/auth/data/repositories/auth_repository_impl.dart';
@@ -36,7 +38,6 @@ Future<void> setupDependencyInjection() async {
       getIt.registerSingleton<GoogleSignIn>(googleSignIn);
     } catch (e) {
       // If initialization fails, still register the instance (user can still use email login)
-      print('GoogleSignIn initialization warning: $e');
       getIt.registerSingleton<GoogleSignIn>(GoogleSignIn.instance);
     }
   }
@@ -89,5 +90,13 @@ Future<void> setupDependencyInjection() async {
       getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
       logoutUseCase: getIt<LogoutUseCase>(),
     ),
+  );
+
+  if (!getIt.isRegistered<AppDatabase>()) {
+    getIt.registerSingleton<AppDatabase>(AppDatabase());
+  }
+
+  getIt.registerSingleton<WeightEntryService>(
+    WeightEntryService(getIt<AppDatabase>()),
   );
 }
