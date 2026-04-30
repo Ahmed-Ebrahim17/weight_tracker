@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:weight_tracker/core/database/services/weight_entry_service.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/add_weight_entry_usecase.dart';
 
 part 'log_weight_event.dart';
 part 'log_weight_state.dart';
 
 class LogWeightBloc extends Bloc<LogWeightEvent, LogWeightState> {
-  final WeightEntryService _weightEntryService;
+  final AddWeightEntryUsecase _addWeightEntryUsecase;
 
-  LogWeightBloc(this._weightEntryService) : super(LogWeightState()) {
+  LogWeightBloc(this._addWeightEntryUsecase) : super(LogWeightState()) {
     on<WeightChanged>(_onWeightChanged);
     on<DateSelected>(_onDateSelected);
     on<TimeSelected>(_onTimeSelected);
@@ -71,7 +71,7 @@ class LogWeightBloc extends Bloc<LogWeightEvent, LogWeightState> {
     try {
       final weight = double.parse(state.weight);
       
-      await _weightEntryService.addWeightEntry(
+      await _addWeightEntryUsecase(
         weight: weight,
         date: state.selectedDate,
         time: DateTime(

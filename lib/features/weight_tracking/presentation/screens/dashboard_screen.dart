@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
-import 'package:weight_tracker/core/database/services/weight_entry_service.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/bloc/dashboard_bloc.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/screens/log_weight_screen.dart';
 
@@ -12,7 +11,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => DashboardBloc(GetIt.instance<WeightEntryService>())
+      create: (context) => GetIt.instance<DashboardBloc>()
         ..add(const LoadDashboard()),
       child: const DashboardView(),
     );
@@ -277,7 +276,7 @@ class _DashboardViewState extends State<DashboardView> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: state.recentEntries.length,
-                separatorBuilder: (_, __) => Divider(height: 16.h),
+                separatorBuilder: (_, _) => Divider(height: 16.h),
                 itemBuilder: (context, index) {
                   final entry = state.recentEntries[index];
                   return Row(

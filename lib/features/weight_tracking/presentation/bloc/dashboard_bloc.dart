@@ -1,15 +1,22 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:weight_tracker/core/database/database.dart';
-import 'package:weight_tracker/core/database/services/weight_entry_service.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_latest_entry_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_last_n_days_entries_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_seven_day_trend_usecase.dart';
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';
 
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
-  final WeightEntryService _weightEntryService;
+  final GetLatestEntryUsecase _getLatestEntryUsecase;
+  final GetLastNDaysEntriesUsecase _getLastNDaysEntriesUsecase;
+  final GetSevenDayTrendUsecase _getSevenDayTrendUsecase;
 
-  DashboardBloc(this._weightEntryService) : super(const DashboardState()) {
+  DashboardBloc(
+    this._getLatestEntryUsecase,
+    this._getLastNDaysEntriesUsecase,
+    this._getSevenDayTrendUsecase,
+  ) : super(const DashboardState()) {
     on<LoadDashboard>(_onLoadDashboard);
     on<RefreshDashboard>(_onRefreshDashboard);
   }
@@ -23,13 +30,13 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
     try {
       // Get latest weight entry
-      final latestEntry = await _weightEntryService.getLatestEntry();
+      final latestEntry = await _getLatestEntryUsecase();
       
       // Get last 7 days entries
-      final last7Days = await _weightEntryService.getEntriesLast7Days();
+      final last7Days = await _getLastNDaysEntriesUsecase(7);
       
       // Get trend
-      final trend = await _weightEntryService.getSevenDayTrend();
+      final trend = await _getSevenDayTrendUsecase();
 
       emit(
         state.copyWith(
@@ -57,13 +64,13 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
   ) async {
     try {
       // Get latest weight entry
-      final latestEntry = await _weightEntryService.getLatestEntry();
+      final latestEntry = await _getLatestEntryUsecase();
       
       // Get last 7 days entries
-      final last7Days = await _weightEntryService.getEntriesLast7Days();
+      final last7Days = await _getLastNDaysEntriesUsecase(7);
       
       // Get trend
-      final trend = await _weightEntryService.getSevenDayTrend();
+      final trend = await _getSevenDayTrendUsecase();
 
       emit(
         state.copyWith(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
-import 'package:weight_tracker/core/database/services/weight_entry_service.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/screens/dashboard_screen.dart';
 import '../bloc/log_weight_bloc.dart';
 
@@ -12,7 +11,7 @@ class LogWeightScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LogWeightBloc(GetIt.instance<WeightEntryService>()),
+      create: (context) => GetIt.instance<LogWeightBloc>(),
       child: const LogWeightView(),
     );
   }
