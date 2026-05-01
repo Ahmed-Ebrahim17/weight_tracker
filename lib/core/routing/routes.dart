@@ -1,6 +1,6 @@
 class Routes {
   static const String splashScreen = '/';
-  static const String homeScreen = '/home';
+  static const String dashboardScreen = '/dashboard';
   static const String loginScreen = '/login';
   static const String registerScreen = '/register';
   static const String forgotPasswordScreen = '/forgot-password';
@@ -13,4 +13,5 @@ class Routes {
   static const String rateAppScreen = '/rate-app';
   static const String shareAppScreen = '/share-app';
   static const String logoutScreen = '/logout';
+  static const String addWeightScreen = '/add-weight';
 }

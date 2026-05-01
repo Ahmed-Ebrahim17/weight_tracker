@@ -52,5 +52,14 @@ class ColorsManager {
   static const Color veryLightGray = Color(0xFFF7FAF9);
 
   static const Color lightGray = Color(0xFFBEC9C8);
-  static const Color datkLighGray = Color(0XFFF1F4F3);
+  static const Color darkLightGray = Color(0XFFF1F4F3);
+
+  static const Color darkGray = Color(0xFF3E4948);
+
+  // Custom specific colors
+  static const Color lightOrange = Color(0xFFFBE8D5);
+  static const Color darkOrange = Color(0xFF7A4A25);
+  static const Color lightGrayishGreen = Color(0xFFE8ECEB);
+  static const Color royalBlue = Color(0xFF1B428A);
+  static const Color grayishBlue = Color(0xFFC6D4E1);
 }

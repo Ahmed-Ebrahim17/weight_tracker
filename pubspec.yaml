@@ -35,6 +35,7 @@ dependencies:
   drift_flutter: 0.2.8
   equatable: ^2.0.5
   firebase_crashlytics: ^5.2.0
+  fl_chart: ^1.2.0
   flutter:
     sdk: flutter
   flutter_appauth: ^12.0.0

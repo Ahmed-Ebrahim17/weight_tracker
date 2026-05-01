@@ -14,18 +14,20 @@ import 'package:weight_tracker/features/auth/domain/usecases/get_current_user.da
 import 'package:weight_tracker/features/auth/domain/usecases/google_login_usecase.dart';
 import 'package:weight_tracker/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
-import 'package:weight_tracker/features/weight_tracking/data/datasources/weight_local_datasource.dart';
-import 'package:weight_tracker/features/weight_tracking/data/repositories/weight_repository_impl.dart';
-import 'package:weight_tracker/features/weight_tracking/domain/repositories/weight_repository.dart';
+import 'package:weight_tracker/core/database/services/weight_entry_service.dart';
+import 'package:weight_tracker/features/weight_tracking/data/datasources/weight_tracking_local_datasource.dart';
+import 'package:weight_tracker/features/weight_tracking/data/repositories/weight_tracking_repository_impl.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/repositories/weight_tracking_repository.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/add_weight_entry_usecase.dart';
-import 'package:weight_tracker/features/weight_tracking/domain/usecases/delete_weight_entry_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_all_entries_usecase.dart';
-import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_last_n_days_entries_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_latest_entry_usecase.dart';
-import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_seven_day_trend_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_entries_last_n_days_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_total_entries_count_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/update_weight_entry_usecase.dart';
-import 'package:weight_tracker/features/weight_tracking/presentation/bloc/dashboard_bloc.dart';
-import 'package:weight_tracker/features/weight_tracking/presentation/bloc/log_weight_bloc.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/delete_weight_entry_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/delete_all_entries_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_trend_last_n_days_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
 
 final getIt = GetIt.instance;
 
@@ -107,54 +109,69 @@ Future<void> setupDependencyInjection() async {
     getIt.registerSingleton<AppDatabase>(AppDatabase());
   }
 
-  // Weight Tracking - Data Layer
-  getIt.registerLazySingleton<WeightLocalDatasource>(
-    () => WeightLocalDatasourceImpl(getIt<AppDatabase>()),
+  // ── Weight Tracking Feature ──────────────────────────────────────────────
+
+  getIt.registerLazySingleton<WeightEntryService>(
+    () => WeightEntryService(getIt<AppDatabase>()),
   );
 
-  // Weight Tracking - Domain Layer
-  getIt.registerLazySingleton<WeightRepository>(
-    () => WeightRepositoryImpl(getIt<WeightLocalDatasource>()),
+  getIt.registerLazySingleton<WeightTrackingLocalDataSource>(
+    () => WeightTrackingLocalDataSourceImpl(
+      weightEntryService: getIt<WeightEntryService>(),
+    ),
   );
 
-  getIt.registerLazySingleton<AddWeightEntryUsecase>(
-    () => AddWeightEntryUsecase(getIt<WeightRepository>()),
+  getIt.registerLazySingleton<WeightTrackingRepository>(
+    () => WeightTrackingRepositoryImpl(
+      localDataSource: getIt<WeightTrackingLocalDataSource>(),
+    ),
   );
 
-  getIt.registerLazySingleton<GetAllEntriesUsecase>(
-    () => GetAllEntriesUsecase(getIt<WeightRepository>()),
+  getIt.registerLazySingleton<AddWeightEntryUseCase>(
+    () => AddWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  getIt.registerLazySingleton<GetLatestEntryUsecase>(
-    () => GetLatestEntryUsecase(getIt<WeightRepository>()),
+  getIt.registerLazySingleton<GetAllEntriesUseCase>(
+    () => GetAllEntriesUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  getIt.registerLazySingleton<GetLastNDaysEntriesUsecase>(
-    () => GetLastNDaysEntriesUsecase(getIt<WeightRepository>()),
+  getIt.registerLazySingleton<GetLatestEntryUseCase>(
+    () => GetLatestEntryUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  getIt.registerLazySingleton<GetSevenDayTrendUsecase>(
-    () => GetSevenDayTrendUsecase(getIt<WeightRepository>()),
+  getIt.registerLazySingleton<GetEntriesLastNDaysUseCase>(
+    () => GetEntriesLastNDaysUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  getIt.registerLazySingleton<UpdateWeightEntryUsecase>(
-    () => UpdateWeightEntryUsecase(getIt<WeightRepository>()),
+  getIt.registerLazySingleton<GetTotalEntriesCountUseCase>(
+    () => GetTotalEntriesCountUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  getIt.registerLazySingleton<DeleteWeightEntryUsecase>(
-    () => DeleteWeightEntryUsecase(getIt<WeightRepository>()),
+  getIt.registerLazySingleton<UpdateWeightEntryUseCase>(
+    () => UpdateWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  // Weight Tracking - Presentation Layer
-  getIt.registerFactory<LogWeightBloc>(
-    () => LogWeightBloc(getIt<AddWeightEntryUsecase>()),
+  getIt.registerLazySingleton<DeleteWeightEntryUseCase>(
+    () => DeleteWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  getIt.registerFactory<DashboardBloc>(
-    () => DashboardBloc(
-      getIt<GetLatestEntryUsecase>(),
-      getIt<GetLastNDaysEntriesUsecase>(),
-      getIt<GetSevenDayTrendUsecase>(),
+  getIt.registerLazySingleton<DeleteAllEntriesUseCase>(
+    () => DeleteAllEntriesUseCase(repository: getIt<WeightTrackingRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetTrendLastNDaysUseCase>(
+    () => GetTrendLastNDaysUseCase(repository: getIt<WeightTrackingRepository>()),
+  );
+
+  getIt.registerFactory<WeightTrackingCubit>(
+    () => WeightTrackingCubit(
+      addWeightEntryUseCase: getIt<AddWeightEntryUseCase>(),
+      getLatestEntryUseCase: getIt<GetLatestEntryUseCase>(),
+      getEntriesLastNDaysUseCase: getIt<GetEntriesLastNDaysUseCase>(),
+      getTotalEntriesCountUseCase: getIt<GetTotalEntriesCountUseCase>(),
+      getTrendLastNDaysUseCase: getIt<GetTrendLastNDaysUseCase>(),
+      updateWeightEntryUseCase: getIt<UpdateWeightEntryUseCase>(),
+      deleteWeightEntryUseCase: getIt<DeleteWeightEntryUseCase>(),
     ),
   );
 }

@@ -5,15 +5,24 @@ import 'package:weight_tracker/core/di/dependency_injection.dart';
 import 'package:weight_tracker/core/routing/app_router.dart';
 import 'package:weight_tracker/weight_tracker_app.dart';
 
-// ...existing code...
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
 
+  final supabaseUrl = dotenv.env['SUPABASE_URL'];
+  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
+
+  if (supabaseUrl == null || supabaseUrl.isEmpty) {
+    throw StateError('Missing SUPABASE_URL in .env file.');
+  }
+
+  if (supabaseAnonKey == null || supabaseAnonKey.isEmpty) {
+    throw StateError('Missing SUPABASE_ANON_KEY in .env file.');
+  }
+
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
   );
 
   await setupDependencyInjection();
