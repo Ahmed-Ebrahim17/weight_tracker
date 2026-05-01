@@ -25,7 +25,7 @@ class AppLogoWithRegisterScreenHeader extends StatelessWidget {
                 BlendMode.srcIn,
               ),
             ),
-            horizentalSpace(12),
+            horizontalSpace(12),
             Text(AppStrings.appName, style: AppTextStyles.font24BoldNearBlack),
           ],
         ),

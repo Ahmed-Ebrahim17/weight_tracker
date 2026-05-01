@@ -102,4 +102,12 @@ class AuthCubit extends Cubit<AuthState> {
       failures.UnknownFailure() => 'Unexpected error. Please try again.',
     };
   }
+
+  @override
+  Future<void> close() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    return super.close();
+  }
 }

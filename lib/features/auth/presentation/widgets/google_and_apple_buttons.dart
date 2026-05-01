@@ -29,19 +29,20 @@ class GoogleAndAppleButtons extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(AppAssets.googleLogo, height: 24, width: 24),
-                horizentalSpace(8),
-                Text(AppStrings.google, style: AppTextStyles.font14BoldSemiBold),
+                horizontalSpace(8),
+                Text(
+                  AppStrings.google,
+                  style: AppTextStyles.font14BoldSemiBold,
+                ),
               ],
             ),
           ),
         ),
-        horizentalSpace(16),
+        horizontalSpace(16),
         Expanded(
           child: AppTextButton(
-            onPressed: () {
-              
-            },
-            backgroundColor: ColorsManager.datkLighGray,
+            onPressed: () {},
+            backgroundColor: ColorsManager.darkLightGray,
             shadowColor: Colors.transparent,
             borderRadius: 32,
             buttonHeight: 60,
@@ -49,7 +50,7 @@ class GoogleAndAppleButtons extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(AppAssets.appleLogo, height: 24, width: 24),
-                horizentalSpace(8),
+                horizontalSpace(8),
                 Text(AppStrings.apple, style: AppTextStyles.font14BoldSemiBold),
               ],
             ),

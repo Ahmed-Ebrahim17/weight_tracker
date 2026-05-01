@@ -3,11 +3,11 @@ import 'package:weight_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:weight_tracker/features/auth/domain/repositories/auth_repository.dart';
 
 class GoogleLoginUseCase {
-	final AuthRepository repository;
+  final AuthRepository repository;
 
-	const GoogleLoginUseCase({required this.repository});
+  const GoogleLoginUseCase({required this.repository});
 
-	Future<ApiResult<AuthUser>> call() {
-		return repository.loginWithGoogle();
-	}
+  Future<ApiResult<AuthUserEntity>> call() {
+    return repository.loginWithGoogle();
+  }
 }

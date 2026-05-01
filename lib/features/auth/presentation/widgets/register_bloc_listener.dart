@@ -14,7 +14,7 @@ class RegisterBlocListener extends StatefulWidget {
 }
 
 class _RegisterBlocListenerState extends State<RegisterBlocListener> {
-  bool isFirstFailure = true;
+  bool _isLoadingDialogVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,33 +24,46 @@ class _RegisterBlocListenerState extends State<RegisterBlocListener> {
       listener: (context, state) {
         switch (state) {
           case AuthLoading _:
-            // Show loading indicator
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => const Center(child: CircularProgressIndicator()),
-            );
+            _showLoadingDialog(context);
             break;
           case AuthSuccess _:
-            // Hide loading indicator and navigate to home screen
-            isFirstFailure = true; // Reset for next auth attempt
-            context.pop(); // Hide loading dialog
-            context.pushNamed(Routes.homeScreen);
+            _hideLoadingDialog(context);
+            context.pushReplacementNamed(Routes.splashScreen);
             break;
           case AuthFailure(:final message):
-            // Suppress error if it's the very first failure emission (likely initialization error)
-            if (isFirstFailure) {
-              isFirstFailure = false;
-              return;
-            }
-            // Hide loading indicator and show error message
-            context.pop(); // Hide loading dialog
-           showSnakBar(context, Colors.red, text: message);
+            _hideLoadingDialog(context);
+            showSnakBar(context, Colors.red, text: message);
             break;
           default:
             break;
         }
       },
       child: const SizedBox.shrink(),
-    );  }
+    );
+  }
+
+  Future<void> _showLoadingDialog(BuildContext context) async {
+    if (_isLoadingDialogVisible || !mounted) {
+      return;
+    }
+
+    _isLoadingDialogVisible = true;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      useRootNavigator: true,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    _isLoadingDialogVisible = false;
+  }
+
+  void _hideLoadingDialog(BuildContext context) {
+    if (!_isLoadingDialogVisible || !mounted) {
+      return;
+    }
+
+    Navigator.of(context, rootNavigator: true).pop();
+    _isLoadingDialogVisible = false;
+  }
 }

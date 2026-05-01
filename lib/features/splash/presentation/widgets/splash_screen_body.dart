@@ -17,11 +17,17 @@ class SplashScreenBody extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 32.w),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          verticalSpace(MediaQuery.of(context).size.height * 0.25),
-          AppLogoWithKineticSanctuary(),
-          Spacer(),
+          verticalSpace(24.h),
+          Expanded(
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: const AppLogoWithKineticSanctuary(),
+              ),
+            ),
+          ),
+          verticalSpace(24.h),
           AppTextButton(
             borderRadius: 50,
             buttonHeight: 60,
@@ -33,12 +39,12 @@ class SplashScreenBody extends StatelessWidget {
                   AppStrings.enterTheFlow,
                   style: AppTextStyles.font14BoldOnPrimary,
                 ),
-                horizentalSpace(16),
+                horizontalSpace(16),
                 Icon(Icons.arrow_forward, color: ColorsManager.onPrimary),
               ],
             ),
           ),
-          verticalSpace(64),
+          verticalSpace(32.h),
         ],
       ),
     );

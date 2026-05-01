@@ -1,11 +1,7 @@
-class AuthUser {
-	final String id;
-	final String email;
-	final String? fullName;
+class AuthUserEntity {
+  final String id;
+  final String email;
+  final String? fullName;
 
-	const AuthUser({
-		required this.id,
-		required this.email,
-		this.fullName,
-	});
+  const AuthUserEntity({required this.id, required this.email, this.fullName});
 }
