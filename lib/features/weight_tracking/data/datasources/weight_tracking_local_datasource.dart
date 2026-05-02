@@ -34,7 +34,8 @@ abstract class WeightTrackingLocalDataSource {
   Future<double?> getSevenDayTrend();
 }
 
-class WeightTrackingLocalDataSourceImpl implements WeightTrackingLocalDataSource {
+class WeightTrackingLocalDataSourceImpl
+    implements WeightTrackingLocalDataSource {
   final WeightEntryService weightEntryService;
 
   const WeightTrackingLocalDataSourceImpl({required this.weightEntryService});

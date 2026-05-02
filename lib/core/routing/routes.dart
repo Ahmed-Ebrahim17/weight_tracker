@@ -14,4 +14,5 @@ class Routes {
   static const String shareAppScreen = '/share-app';
   static const String logoutScreen = '/logout';
   static const String addWeightScreen = '/add-weight';
+  static const String historyScreen = '/history';
 }

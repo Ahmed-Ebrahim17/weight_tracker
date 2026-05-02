@@ -51,27 +51,23 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
       (entry) => entry?.weight,
     );
 
-    final sevenDayTrend = trendResult.fold(
-      (_) => null,
-      (trend) => trend,
-    );
+    final sevenDayTrend = trendResult.fold((_) => null, (trend) => trend);
 
-    final totalEntries = countResult.fold(
-      (_) => 0,
-      (count) => count,
-    );
+    final totalEntries = countResult.fold((_) => 0, (count) => count);
 
     final recentEntries = recentResult.fold(
       (_) => <dynamic>[],
       (entries) => entries,
     );
 
-    emit(WeightTrackingLoaded(
-      latestWeight: latestWeight,
-      sevenDayTrend: sevenDayTrend,
-      totalEntries: totalEntries,
-      recentEntries: recentEntries.cast(),
-    ));
+    emit(
+      WeightTrackingLoaded(
+        latestWeight: latestWeight,
+        sevenDayTrend: sevenDayTrend,
+        totalEntries: totalEntries,
+        recentEntries: recentEntries.cast(),
+      ),
+    );
   }
 
   /// Adds a new weight entry and reloads dashboard data.
@@ -132,9 +128,8 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
       failures.ValidationFailure() => failure.message,
       failures.AuthFailure() => failure.message,
       failures.ServerFailure() => 'Server error. Please try again.',
-      failures.UnknownFailure() => failure.message.isEmpty
-          ? 'Something went wrong.'
-          : failure.message,
+      failures.UnknownFailure() =>
+        failure.message.isEmpty ? 'Something went wrong.' : failure.message,
     };
   }
 }

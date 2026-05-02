@@ -51,7 +51,9 @@ class WeightTrackingRepositoryImpl implements WeightTrackingRepository {
   }
 
   @override
-  Future<ApiResult<List<WeightEntryEntity>>> getEntriesLastNDays(int days) async {
+  Future<ApiResult<List<WeightEntryEntity>>> getEntriesLastNDays(
+    int days,
+  ) async {
     try {
       final entries = await localDataSource.getEntriesLastNDays(days);
       return Right(entries.map<WeightEntryEntity>((entry) => entry).toList());

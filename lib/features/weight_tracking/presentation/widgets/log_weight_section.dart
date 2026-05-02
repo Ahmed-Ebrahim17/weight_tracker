@@ -69,10 +69,10 @@ class _LogWeightSectionState extends State<LogWeightSection> {
     );
 
     context.read<WeightTrackingCubit>().addWeightEntry(
-          weight: weight,
-          date: _selectedDate,
-          time: dateTime,
-        );
+      weight: weight,
+      date: _selectedDate,
+      time: dateTime,
+    );
   }
 
   @override
@@ -114,10 +114,7 @@ class _LogWeightSectionState extends State<LogWeightSection> {
         Navigator.of(context).pop();
       case WeightTrackingError(:final message):
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            behavior: SnackBarBehavior.floating,
-          ),
+          SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
         );
       case _:
         break;

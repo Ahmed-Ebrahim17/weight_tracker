@@ -40,17 +40,13 @@ class AppRouter {
         );
       case Routes.dashboardScreen:
         return MaterialPageRoute(
-          builder: (context) => MultiBlocProvider(
-            // ← wraps MULTIPLE cubits
-            providers: [
-              BlocProvider(create: (context) => getIt<AuthCubit>()),
-              BlocProvider(
-                create: (context) =>
-                    getIt<WeightTrackingCubit>()
-                      ..loadDashboardData(), // load data immediately
-              ),
-            ],
-            child: const DashboardScreen(),
+          builder: (context) => BlocProvider(
+            create: (context) => getIt<AuthCubit>(),
+            child: BlocProvider(
+              create: (context) =>
+                  getIt<WeightTrackingCubit>()..loadDashboardData(),
+              child: const DashboardScreen(),
+            ),
           ),
         );
       case Routes.addWeightScreen:

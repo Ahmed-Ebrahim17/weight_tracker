@@ -63,9 +63,8 @@ Future<void> setupDependencyInjection() async {
   );
 
   getIt.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(
-      sharedPreferences: getIt<SharedPreferences>(),
-    ),
+    () =>
+        AuthLocalDataSourceImpl(sharedPreferences: getIt<SharedPreferences>()),
   );
 
   getIt.registerLazySingleton<AuthRepository>(
@@ -140,27 +139,35 @@ Future<void> setupDependencyInjection() async {
   );
 
   getIt.registerLazySingleton<GetEntriesLastNDaysUseCase>(
-    () => GetEntriesLastNDaysUseCase(repository: getIt<WeightTrackingRepository>()),
+    () => GetEntriesLastNDaysUseCase(
+      repository: getIt<WeightTrackingRepository>(),
+    ),
   );
 
   getIt.registerLazySingleton<GetTotalEntriesCountUseCase>(
-    () => GetTotalEntriesCountUseCase(repository: getIt<WeightTrackingRepository>()),
+    () => GetTotalEntriesCountUseCase(
+      repository: getIt<WeightTrackingRepository>(),
+    ),
   );
 
   getIt.registerLazySingleton<UpdateWeightEntryUseCase>(
-    () => UpdateWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
+    () =>
+        UpdateWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
   getIt.registerLazySingleton<DeleteWeightEntryUseCase>(
-    () => DeleteWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
+    () =>
+        DeleteWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
   getIt.registerLazySingleton<DeleteAllEntriesUseCase>(
-    () => DeleteAllEntriesUseCase(repository: getIt<WeightTrackingRepository>()),
+    () =>
+        DeleteAllEntriesUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
   getIt.registerLazySingleton<GetTrendLastNDaysUseCase>(
-    () => GetTrendLastNDaysUseCase(repository: getIt<WeightTrackingRepository>()),
+    () =>
+        GetTrendLastNDaysUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
   getIt.registerFactory<WeightTrackingCubit>(
