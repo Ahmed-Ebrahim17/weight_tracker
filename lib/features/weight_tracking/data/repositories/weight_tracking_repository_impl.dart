@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:weight_tracker/core/error/api_result.dart';
 import 'package:weight_tracker/core/error/failure.dart';
 import 'package:weight_tracker/features/weight_tracking/data/datasources/weight_tracking_local_datasource.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/entities/target_goal_entity.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/entities/weight_entry.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/repositories/weight_tracking_repository.dart';
 
@@ -127,10 +128,46 @@ class WeightTrackingRepositoryImpl implements WeightTrackingRepository {
   @override
   Future<ApiResult<double?>> getSevenDayTrend() async {
     try {
-      final trend = await localDataSource.getSevenDayTrend();
+      final trend = await localDataSource.getTrendLastNDays(7);
       return Right(trend);
     } catch (e) {
       return const Left(UnknownFailure('Failed to load seven day trend.'));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> saveTargetGoal({
+    required double targetWeight,
+    required DateTime targetDate,
+    required String goalType,
+  }) async {
+    try {
+      await localDataSource.saveTargetGoal(targetWeight, targetDate, goalType);
+      return const Right(null);
+    } catch (e) {
+      return const Left(UnknownFailure('Failed to save target goal.'));
+    }
+  }
+
+  @override
+  Future<ApiResult<TargetGoalEntity?>> getTargetGoal() async {
+    try {
+      final targetWeight = await localDataSource.getTargetWeight();
+      final targetDate = await localDataSource.getTargetDate();
+      final goalType = await localDataSource.getGoalType();
+
+      if (targetWeight != null && targetDate != null && goalType != null) {
+        return Right(
+          TargetGoalEntity(
+            targetWeight: targetWeight,
+            targetDate: targetDate,
+            goalType: goalType,
+          ),
+        );
+      }
+      return const Right(null);
+    } catch (e) {
+      return const Left(UnknownFailure('Failed to load target goal.'));
     }
   }
 }

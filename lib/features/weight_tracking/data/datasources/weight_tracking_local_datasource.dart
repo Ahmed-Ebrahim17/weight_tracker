@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weight_tracker/core/database/services/weight_entry_service.dart';
 import 'package:weight_tracker/features/weight_tracking/data/models/weight_entry_model.dart';
 
@@ -32,13 +33,31 @@ abstract class WeightTrackingLocalDataSource {
   Future<double?> getTrendLastNDays(int days);
 
   Future<double?> getSevenDayTrend();
+
+  Future<void> saveTargetGoal(
+    double targetWeight,
+    DateTime targetDate,
+    String goalType,
+  );
+
+  Future<double?> getTargetWeight();
+  Future<DateTime?> getTargetDate();
+  Future<String?> getGoalType();
 }
 
 class WeightTrackingLocalDataSourceImpl
     implements WeightTrackingLocalDataSource {
   final WeightEntryService weightEntryService;
+  final SharedPreferences sharedPreferences;
 
-  const WeightTrackingLocalDataSourceImpl({required this.weightEntryService});
+  const WeightTrackingLocalDataSourceImpl({
+    required this.weightEntryService,
+    required this.sharedPreferences,
+  });
+  // Target goal keys
+  static const String _targetWeightKey = 'target_weight';
+  static const String _targetDateKey = 'target_date';
+  static const String _goalTypeKey = 'goal_type';
 
   @override
   Future<int> addEntry({
@@ -116,5 +135,38 @@ class WeightTrackingLocalDataSourceImpl
   @override
   Future<double?> getSevenDayTrend() {
     return weightEntryService.getSevenDayTrend();
+  }
+
+  @override
+  Future<void> saveTargetGoal(
+    double targetWeight,
+    DateTime targetDate,
+    String goalType,
+  ) async {
+    await sharedPreferences.setDouble(_targetWeightKey, targetWeight);
+    await sharedPreferences.setString(
+      _targetDateKey,
+      targetDate.toIso8601String(),
+    );
+    await sharedPreferences.setString(_goalTypeKey, goalType);
+  }
+
+  @override
+  Future<double?> getTargetWeight() async {
+    return sharedPreferences.getDouble(_targetWeightKey);
+  }
+
+  @override
+  Future<DateTime?> getTargetDate() async {
+    final dateString = sharedPreferences.getString(_targetDateKey);
+    if (dateString != null) {
+      return DateTime.tryParse(dateString);
+    }
+    return null;
+  }
+
+  @override
+  Future<String?> getGoalType() async {
+    return sharedPreferences.getString(_goalTypeKey);
   }
 }

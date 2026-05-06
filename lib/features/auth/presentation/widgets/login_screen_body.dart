@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:weight_tracker/core/constants/app_strings.dart';
-import 'package:weight_tracker/core/helper/extensions.dart';
 import 'package:weight_tracker/core/helper/spacing.dart';
-import 'package:weight_tracker/core/routing/routes.dart';
 import 'package:weight_tracker/core/widgets/app_text_button.dart';
 import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:weight_tracker/features/auth/presentation/widgets/app_logo_with_login_scren_header.dart';
@@ -40,7 +38,6 @@ class LoginScreenBody extends StatelessWidget {
             AppTextButton(
               onPressed: () {
                 validateThenDoLogin(context);
-                context.pushNamed(Routes.dashboardScreen);
               },
               buttonHeight: 60,
               borderRadius: 48,

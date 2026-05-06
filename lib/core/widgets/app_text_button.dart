@@ -34,8 +34,11 @@ class AppTextButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius ?? 16),
         boxShadow: [
           BoxShadow(
-            color: shadowColor ??
-                (backgroundColor ?? ColorsManager.primaryBlue).withValues(alpha: 0.4),
+            color:
+                shadowColor ??
+                (backgroundColor ?? ColorsManager.primaryBlue).withValues(
+                  alpha: 0.4,
+                ),
             blurRadius: shadowBlurRadius ?? 20,
             offset: const Offset(0, 8),
           ),
@@ -53,12 +56,12 @@ class AppTextButton extends StatelessWidget {
           ),
           padding: WidgetStateProperty.all<EdgeInsets>(
             EdgeInsets.symmetric(
-              horizontal: horizontalPadding?.w ?? 12.w,
-              vertical: verticalPadding?.h ?? 14.h,
+              horizontal: horizontalPadding ?? 12.w,
+              vertical: verticalPadding ?? 14.h,
             ),
           ),
           fixedSize: WidgetStateProperty.all(
-            Size(buttonWidth?.w ?? double.maxFinite, buttonHeight?.h ?? 50.h),
+            Size(buttonWidth ?? double.maxFinite, buttonHeight ?? 50.h),
           ),
         ),
         onPressed: onPressed,

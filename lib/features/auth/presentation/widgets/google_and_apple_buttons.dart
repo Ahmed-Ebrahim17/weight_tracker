@@ -32,7 +32,7 @@ class GoogleAndAppleButtons extends StatelessWidget {
                 horizontalSpace(8),
                 Text(
                   AppStrings.google,
-                  style: AppTextStyles.font14BoldSemiBold,
+                  style: AppTextStyles.font14SemiBoldNearBlack,
                 ),
               ],
             ),
@@ -51,7 +51,10 @@ class GoogleAndAppleButtons extends StatelessWidget {
               children: [
                 SvgPicture.asset(AppAssets.appleLogo, height: 24, width: 24),
                 horizontalSpace(8),
-                Text(AppStrings.apple, style: AppTextStyles.font14BoldSemiBold),
+                Text(
+                  AppStrings.apple,
+                  style: AppTextStyles.font14SemiBoldNearBlack,
+                ),
               ],
             ),
           ),

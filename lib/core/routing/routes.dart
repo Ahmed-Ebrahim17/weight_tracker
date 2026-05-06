@@ -15,4 +15,5 @@ class Routes {
   static const String logoutScreen = '/logout';
   static const String addWeightScreen = '/add-weight';
   static const String historyScreen = '/history';
+  static const String goalScreen = '/goal';
 }

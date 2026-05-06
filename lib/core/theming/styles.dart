@@ -14,6 +14,16 @@ class AppTextStyles {
     fontWeight: FontWeightHelper.bold,
     color: ColorsManager.veryDarkGray,
   );
+  static TextStyle font20BoldVeryDarkGray = TextStyle(
+    fontSize: 20.sp,
+    fontWeight: FontWeightHelper.bold,
+    color: ColorsManager.veryDarkGray,
+  );
+  static TextStyle font18ExtraBoldPrimaryDeepBlue = TextStyle(
+    fontSize: 18.sp,
+    fontWeight: FontWeightHelper.extraBold,
+    color: ColorsManager.primaryDeepBlue,
+  );
   static TextStyle font48RegularPrimaryDeepBlue = TextStyle(
     fontSize: 48.sp,
     fontWeight: FontWeightHelper.regular,
@@ -54,6 +64,16 @@ class AppTextStyles {
     fontSize: 14.sp,
     fontWeight: FontWeightHelper.bold,
   );
+  static TextStyle font16BoldOnPrimary = TextStyle(
+    color: ColorsManager.onPrimary,
+    fontSize: 16.sp,
+    fontWeight: FontWeightHelper.bold,
+  );
+  static TextStyle font14BoldOVeryDarkGray = TextStyle(
+    color: ColorsManager.veryDarkGray,
+    fontSize: 14.sp,
+    fontWeight: FontWeightHelper.bold,
+  );
   static TextStyle font14SemiBoldPrimaryBlue = TextStyle(
     color: ColorsManager.primaryBlue,
     fontSize: 14.sp,
@@ -74,15 +94,21 @@ class AppTextStyles {
     fontSize: 32.sp,
     fontWeight: FontWeightHelper.bold,
   );
-  static TextStyle font14BoldSemiBold = TextStyle(
+  static TextStyle font14SemiBoldNearBlack = TextStyle(
     color: ColorsManager.nearBlack,
     fontSize: 14.sp,
     fontWeight: FontWeightHelper.semiBold,
   );
+
   static TextStyle font16RegularNearBlack = TextStyle(
     color: ColorsManager.nearBlack,
     fontSize: 16.sp,
     fontWeight: FontWeightHelper.regular,
+  );
+  static TextStyle font16BoldVeryDarkGray = TextStyle(
+    color: ColorsManager.veryDarkGray,
+    fontSize: 16.sp,
+    fontWeight: FontWeightHelper.bold,
   );
   static TextStyle font14RegularNearBlack = TextStyle(
     color: ColorsManager.nearBlack,
@@ -105,10 +131,22 @@ class AppTextStyles {
     fontSize: 12.sp,
     fontWeight: FontWeightHelper.bold,
   );
+
+  static TextStyle font12GrayRegular = TextStyle(
+    color: ColorsManager.darkGray,
+    fontSize: 12.sp,
+    fontWeight: FontWeightHelper.regular,
+  );
+
   static TextStyle font10BoldlightGray = TextStyle(
     color: ColorsManager.lightGray,
     fontSize: 10.sp,
     fontWeight: FontWeightHelper.bold,
+  );
+  static TextStyle font10RegularDarkGray = TextStyle(
+    color: ColorsManager.darkGray,
+    fontSize: 10.sp,
+    fontWeight: FontWeightHelper.regular,
   );
 
   static TextStyle font12RegularGray = TextStyle(

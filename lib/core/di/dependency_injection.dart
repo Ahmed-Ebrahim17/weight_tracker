@@ -27,6 +27,8 @@ import 'package:weight_tracker/features/weight_tracking/domain/usecases/update_w
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/delete_weight_entry_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/delete_all_entries_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_trend_last_n_days_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/save_target_goal_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_target_goal_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
 
 final getIt = GetIt.instance;
@@ -117,6 +119,7 @@ Future<void> setupDependencyInjection() async {
   getIt.registerLazySingleton<WeightTrackingLocalDataSource>(
     () => WeightTrackingLocalDataSourceImpl(
       weightEntryService: getIt<WeightEntryService>(),
+      sharedPreferences: getIt<SharedPreferences>(),
     ),
   );
 
@@ -124,6 +127,14 @@ Future<void> setupDependencyInjection() async {
     () => WeightTrackingRepositoryImpl(
       localDataSource: getIt<WeightTrackingLocalDataSource>(),
     ),
+  );
+
+  getIt.registerLazySingleton<SaveTargetGoalUseCase>(
+    () => SaveTargetGoalUseCase(repository: getIt<WeightTrackingRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetTargetGoalUseCase>(
+    () => GetTargetGoalUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
   getIt.registerLazySingleton<AddWeightEntryUseCase>(
@@ -179,6 +190,8 @@ Future<void> setupDependencyInjection() async {
       getTrendLastNDaysUseCase: getIt<GetTrendLastNDaysUseCase>(),
       updateWeightEntryUseCase: getIt<UpdateWeightEntryUseCase>(),
       deleteWeightEntryUseCase: getIt<DeleteWeightEntryUseCase>(),
+      saveTargetGoalUseCase: getIt<SaveTargetGoalUseCase>(),
+      getTargetGoalUseCase: getIt<GetTargetGoalUseCase>(),
     ),
   );
 }

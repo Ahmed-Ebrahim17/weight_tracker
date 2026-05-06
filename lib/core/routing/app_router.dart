@@ -8,6 +8,8 @@ import 'package:weight_tracker/features/auth/presentation/screens/register_scree
 import 'package:weight_tracker/features/splash/presentation/screens/splash_screen.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/screens/dashboard_screen.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
+import 'package:weight_tracker/features/weight_tracking/presentation/screens/goal_screen.dart';
+import 'package:weight_tracker/features/weight_tracking/presentation/screens/history_screen.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/widgets/log_weight_section.dart';
 
 class AppRouter {
@@ -41,7 +43,7 @@ class AppRouter {
       case Routes.dashboardScreen:
         return MaterialPageRoute(
           builder: (context) => BlocProvider(
-            create: (context) => getIt<AuthCubit>(),
+            create: (context) => getIt<AuthCubit>()..loadCurrentUser(),
             child: BlocProvider(
               create: (context) =>
                   getIt<WeightTrackingCubit>()..loadDashboardData(),
@@ -54,6 +56,25 @@ class AppRouter {
           builder: (context) => BlocProvider(
             create: (context) => getIt<WeightTrackingCubit>(),
             child: const LogWeightSection(),
+          ),
+        );
+      case Routes.historyScreen:
+        return MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            create: (context) => getIt<AuthCubit>(),
+            child: BlocProvider(
+              create: (context) =>
+                  getIt<WeightTrackingCubit>()..loadDashboardData(),
+              child: const HistoryScreen(),
+            ),
+          ),
+        );
+      case Routes.goalScreen:
+        return MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            create: (context) =>
+                getIt<WeightTrackingCubit>()..loadDashboardData(),
+            child: const GoalScreen(),
           ),
         );
       default:
