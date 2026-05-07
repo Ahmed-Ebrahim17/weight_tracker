@@ -181,7 +181,7 @@ Future<void> setupDependencyInjection() async {
         GetTrendLastNDaysUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  getIt.registerFactory<WeightTrackingCubit>(
+  getIt.registerLazySingleton<WeightTrackingCubit>(
     () => WeightTrackingCubit(
       addWeightEntryUseCase: getIt<AddWeightEntryUseCase>(),
       getLatestEntryUseCase: getIt<GetLatestEntryUseCase>(),

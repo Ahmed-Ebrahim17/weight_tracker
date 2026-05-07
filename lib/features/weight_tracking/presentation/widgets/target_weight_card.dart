@@ -66,12 +66,13 @@ class TargetWeightCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _CircleButton(
-                icon: Icons.remove,
-                onPressed: () {
-                  if (targetWeight > 1) {
-                    onTargetWeightChanged(targetWeight - 1);
-                  }
-                }),
+              icon: Icons.remove,
+              onPressed: () {
+                if (targetWeight > 1) {
+                  onTargetWeightChanged(targetWeight - 1);
+                }
+              },
+            ),
             horizontalSpace(20),
             Text(
               'Current: ${currentWeight.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')} lbs',
@@ -81,10 +82,11 @@ class TargetWeightCard extends StatelessWidget {
             ),
             horizontalSpace(20),
             _CircleButton(
-                icon: Icons.add,
-                onPressed: () {
-                  onTargetWeightChanged(targetWeight + 1);
-                }),
+              icon: Icons.add,
+              onPressed: () {
+                onTargetWeightChanged(targetWeight + 1);
+              },
+            ),
           ],
         ),
       ],

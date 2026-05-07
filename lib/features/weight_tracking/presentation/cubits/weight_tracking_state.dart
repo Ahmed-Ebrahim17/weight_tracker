@@ -29,6 +29,9 @@ class WeightTrackingLoaded extends WeightTrackingState {
   /// The user's target / goal weight. Null until the user sets one.
   final double? targetWeight;
 
+  /// The user's starting weight when the goal was set.
+  final double? startingWeight;
+
   /// The user's target date to reach their goal. Defaults to today if not set.
   final DateTime? targetDate;
 
@@ -41,6 +44,7 @@ class WeightTrackingLoaded extends WeightTrackingState {
     required this.totalEntries,
     required this.recentEntries,
     this.targetWeight,
+    this.startingWeight,
     this.targetDate,
     this.goalType,
   });

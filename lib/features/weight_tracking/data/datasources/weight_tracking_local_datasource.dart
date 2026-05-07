@@ -38,11 +38,15 @@ abstract class WeightTrackingLocalDataSource {
     double targetWeight,
     DateTime targetDate,
     String goalType,
+    double startingWeight,
   );
 
   Future<double?> getTargetWeight();
   Future<DateTime?> getTargetDate();
   Future<String?> getGoalType();
+
+  Future<void> saveStartingWeight(double startingWeight);
+  Future<double> getStartingWeight();
 }
 
 class WeightTrackingLocalDataSourceImpl
@@ -58,6 +62,7 @@ class WeightTrackingLocalDataSourceImpl
   static const String _targetWeightKey = 'target_weight';
   static const String _targetDateKey = 'target_date';
   static const String _goalTypeKey = 'goal_type';
+  static const String _startingWeightKey = 'starting_weight';
 
   @override
   Future<int> addEntry({
@@ -142,6 +147,7 @@ class WeightTrackingLocalDataSourceImpl
     double targetWeight,
     DateTime targetDate,
     String goalType,
+    double startingWeight,
   ) async {
     await sharedPreferences.setDouble(_targetWeightKey, targetWeight);
     await sharedPreferences.setString(
@@ -163,6 +169,16 @@ class WeightTrackingLocalDataSourceImpl
       return DateTime.tryParse(dateString);
     }
     return null;
+  }
+
+  @override
+  Future<void> saveStartingWeight(double startingWeight) async {
+    await sharedPreferences.setDouble(_startingWeightKey, startingWeight);
+  }
+
+  @override
+  Future<double> getStartingWeight() async {
+    return sharedPreferences.getDouble(_startingWeightKey) ?? 0;
   }
 
   @override

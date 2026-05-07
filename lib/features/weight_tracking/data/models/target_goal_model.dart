@@ -5,6 +5,7 @@ class TargetGoalModel extends TargetGoalEntity {
     required super.targetWeight,
     required super.targetDate,
     required super.goalType,
+    required super.startingWeight,
   });
 
   factory TargetGoalModel.fromJson(Map<String, dynamic> json) {
@@ -12,6 +13,9 @@ class TargetGoalModel extends TargetGoalEntity {
       targetWeight: (json['targetWeight'] as num).toDouble(),
       targetDate: DateTime.parse(json['targetDate'] as String),
       goalType: json['goalType'] as String,
+      startingWeight: json['startingWeight'] != null
+          ? (json['startingWeight'] as num).toDouble()
+          : 0,
     );
   }
 
@@ -20,6 +24,7 @@ class TargetGoalModel extends TargetGoalEntity {
       'targetWeight': targetWeight,
       'targetDate': targetDate.toIso8601String(),
       'goalType': goalType,
+      'startingWeight': startingWeight,
     };
   }
 }

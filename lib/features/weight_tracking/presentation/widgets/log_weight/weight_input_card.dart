@@ -5,9 +5,10 @@ import 'package:weight_tracker/core/theming/colors.dart';
 import 'package:weight_tracker/core/theming/styles.dart';
 
 class WeightInputCard extends StatelessWidget {
-  const WeightInputCard({super.key, required this.controller});
+  const WeightInputCard({super.key, required this.controller, this.label});
 
   final TextEditingController controller;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +19,23 @@ class WeightInputCard extends StatelessWidget {
         color: ColorsManager.darkLightGray,
         borderRadius: BorderRadius.circular(40.r),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
+      child: Column(
         children: [
+          if (label != null) ...[
+            Text(
+              label!.toUpperCase(),
+              style: AppTextStyles.font12RegularGray.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+              ),
+            ),
+            verticalSpace(16),
+          ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
           SizedBox(
             width: 140.w,
             child: TextField(
@@ -52,6 +65,8 @@ class WeightInputCard extends StatelessWidget {
             style: AppTextStyles.font16RegularNearBlack.copyWith(
               fontWeight: FontWeight.w700,
             ),
+          ),
+            ],
           ),
         ],
       ),

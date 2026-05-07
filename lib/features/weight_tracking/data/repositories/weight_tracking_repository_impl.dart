@@ -140,9 +140,15 @@ class WeightTrackingRepositoryImpl implements WeightTrackingRepository {
     required double targetWeight,
     required DateTime targetDate,
     required String goalType,
+    required double startingWeight,
   }) async {
     try {
-      await localDataSource.saveTargetGoal(targetWeight, targetDate, goalType);
+      await localDataSource.saveTargetGoal(
+        targetWeight,
+        targetDate,
+        goalType,
+        startingWeight,
+      );
       return const Right(null);
     } catch (e) {
       return const Left(UnknownFailure('Failed to save target goal.'));
@@ -155,6 +161,7 @@ class WeightTrackingRepositoryImpl implements WeightTrackingRepository {
       final targetWeight = await localDataSource.getTargetWeight();
       final targetDate = await localDataSource.getTargetDate();
       final goalType = await localDataSource.getGoalType();
+      final startingWeight = await localDataSource.getStartingWeight();
 
       if (targetWeight != null && targetDate != null && goalType != null) {
         return Right(
@@ -162,6 +169,7 @@ class WeightTrackingRepositoryImpl implements WeightTrackingRepository {
             targetWeight: targetWeight,
             targetDate: targetDate,
             goalType: goalType,
+            startingWeight: startingWeight,
           ),
         );
       }

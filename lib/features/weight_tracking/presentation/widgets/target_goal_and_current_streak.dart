@@ -5,10 +5,19 @@ import 'package:weight_tracker/core/theming/colors.dart';
 import 'package:weight_tracker/core/theming/styles.dart';
 
 class TargetGoalAndCurrentStreak extends StatelessWidget {
-  const TargetGoalAndCurrentStreak({super.key, required this.totalEntries});
+  const TargetGoalAndCurrentStreak({
+    super.key,
+    required this.totalEntries,
+    required this.targetGoal,
+    required this.currentWeight,
+    this.startingWeight,
+  });
 
   /// Total number of weight entries logged by the user.
   final int totalEntries;
+  final double targetGoal;
+  final double currentWeight;
+  final double? startingWeight;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +72,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                "135.0",
+                targetGoal.toStringAsFixed(1),
                 style: AppTextStyles.font32BoldNearBlack.copyWith(
                   fontSize: 26.sp,
                 ),
@@ -82,8 +91,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
             ),
             child: FractionallySizedBox(
               alignment: Alignment.centerLeft,
-              widthFactor:
-                  0.7, // 70% progress — will be dynamic when goal feature is built
+              widthFactor: _calculateProgress(),
               child: Container(
                 decoration: BoxDecoration(
                   color: ColorsManager.secondaryDark2,
@@ -151,5 +159,13 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  double _calculateProgress() {
+    if (startingWeight == null || startingWeight == targetGoal) {
+      return 0.0;
+    }
+    return ((currentWeight - startingWeight!) / (targetGoal - startingWeight!))
+        .clamp(0.0, 1.0);
   }
 }

@@ -7,6 +7,8 @@ import 'package:weight_tracker/core/theming/colors.dart';
 import 'package:weight_tracker/core/theming/styles.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/widgets/weight_arc_painter.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/widgets/weight_label.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
 
 class WeightGoalCard extends StatelessWidget {
   final double currentWeight;
@@ -57,8 +59,11 @@ class WeightGoalCard extends StatelessWidget {
             children: [
               Text("WEIGHT GOAL", style: AppTextStyles.font12BoldNearBlack),
               IconButton(
-                onPressed: () {
-                  context.pushNamed(Routes.goalScreen);
+                onPressed: () async {
+                  await context.pushNamed(Routes.goalScreen);
+                  if (context.mounted) {
+                    context.read<WeightTrackingCubit>().loadDashboardData();
+                  }
                 },
                 icon: Icon(size: 14.sp, Icons.edit),
               ),
@@ -66,7 +71,6 @@ class WeightGoalCard extends StatelessWidget {
           ),
           verticalSpace(48),
 
-          // ── Circular Arc with values ──
           SizedBox(
             width: arcSize,
             height: arcSize,

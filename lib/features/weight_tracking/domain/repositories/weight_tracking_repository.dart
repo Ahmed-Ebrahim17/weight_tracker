@@ -38,6 +38,7 @@ abstract class WeightTrackingRepository {
     required double targetWeight,
     required DateTime targetDate,
     required String goalType,
+    required double startingWeight,
   });
 
   Future<ApiResult<TargetGoalEntity?>> getTargetGoal();

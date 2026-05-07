@@ -76,6 +76,7 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
         totalEntries: totalEntries,
         recentEntries: recentEntries.cast(),
         targetWeight: targetGoal?.targetWeight,
+        startingWeight: targetGoal?.startingWeight,
         targetDate: targetGoal?.targetDate,
         goalType: targetGoal?.goalType,
       ),
@@ -141,10 +142,17 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
     required DateTime targetDate,
     required String goalType,
   }) async {
+    final current = state;
+    double startingWeight = 0.0;
+    if (current is WeightTrackingLoaded && current.latestWeight != null) {
+      startingWeight = current.latestWeight!;
+    }
+
     final result = await saveTargetGoalUseCase(
       targetWeight: targetWeight,
       targetDate: targetDate,
       goalType: goalType,
+      startingWeight: startingWeight,
     );
 
     result.fold(
@@ -157,15 +165,18 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
   void setTargetWeight(double targetWeight) {
     final current = state;
     if (current is WeightTrackingLoaded) {
-      emit(WeightTrackingLoaded(
-        latestWeight: current.latestWeight,
-        sevenDayTrend: current.sevenDayTrend,
-        totalEntries: current.totalEntries,
-        recentEntries: current.recentEntries,
-        targetWeight: targetWeight,
-        targetDate: current.targetDate,
-        goalType: current.goalType,
-      ));
+      emit(
+        WeightTrackingLoaded(
+          latestWeight: current.latestWeight,
+          sevenDayTrend: current.sevenDayTrend,
+          totalEntries: current.totalEntries,
+          recentEntries: current.recentEntries,
+          targetWeight: targetWeight,
+          startingWeight: current.startingWeight,
+          targetDate: current.targetDate,
+          goalType: current.goalType,
+        ),
+      );
     }
   }
 
@@ -173,15 +184,18 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
   void setTargetDate(DateTime targetDate) {
     final current = state;
     if (current is WeightTrackingLoaded) {
-      emit(WeightTrackingLoaded(
-        latestWeight: current.latestWeight,
-        sevenDayTrend: current.sevenDayTrend,
-        totalEntries: current.totalEntries,
-        recentEntries: current.recentEntries,
-        targetWeight: current.targetWeight,
-        targetDate: targetDate,
-        goalType: current.goalType,
-      ));
+      emit(
+        WeightTrackingLoaded(
+          latestWeight: current.latestWeight,
+          sevenDayTrend: current.sevenDayTrend,
+          totalEntries: current.totalEntries,
+          recentEntries: current.recentEntries,
+          targetWeight: current.targetWeight,
+          startingWeight: current.startingWeight,
+          targetDate: targetDate,
+          goalType: current.goalType,
+        ),
+      );
     }
   }
 
@@ -189,15 +203,18 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
   void setGoalType(String goalType) {
     final current = state;
     if (current is WeightTrackingLoaded) {
-      emit(WeightTrackingLoaded(
-        latestWeight: current.latestWeight,
-        sevenDayTrend: current.sevenDayTrend,
-        totalEntries: current.totalEntries,
-        recentEntries: current.recentEntries,
-        targetWeight: current.targetWeight,
-        targetDate: current.targetDate,
-        goalType: goalType,
-      ));
+      emit(
+        WeightTrackingLoaded(
+          latestWeight: current.latestWeight,
+          sevenDayTrend: current.sevenDayTrend,
+          totalEntries: current.totalEntries,
+          recentEntries: current.recentEntries,
+          targetWeight: current.targetWeight,
+          startingWeight: current.startingWeight,
+          targetDate: current.targetDate,
+          goalType: goalType,
+        ),
+      );
     }
   }
 
@@ -212,4 +229,3 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
     };
   }
 }
-

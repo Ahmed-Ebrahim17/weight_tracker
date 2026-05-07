@@ -8,7 +8,6 @@ import 'package:weight_tracker/core/theming/colors.dart';
 import 'package:weight_tracker/core/theming/styles.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
 import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
-import 'package:weight_tracker/features/auth/presentation/cubits/auth_state.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_state.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/widgets/target_goal_and_current_streak.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/widgets/trend_card.dart';
@@ -35,16 +34,15 @@ class DashboardLoadedView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("GOOD MORNING,", style: AppTextStyles.font14RegularDarkGray),
-            BlocBuilder<AuthCubit, AuthState>(
-              builder: (context, authState) {
-                String userName = "User";
-                if (authState is AuthSuccess) {
-                  final fullName = authState.user.fullName;
-                  if (fullName != null && fullName.isNotEmpty) {
-                    userName = fullName.split(' ').first;
-                  }
-                }
-                return Text(userName, style: AppTextStyles.font30ExtraBoldNearBlack);
+            Builder(
+              builder: (context) {
+                final userName = context.select(
+                  (AuthCubit cubit) => cubit.currentUserName,
+                );
+                return Text(
+                  userName,
+                  style: AppTextStyles.font30ExtraBoldNearBlack,
+                );
               },
             ),
             verticalSpace(20),
@@ -55,12 +53,20 @@ class DashboardLoadedView extends StatelessWidget {
             verticalSpace(20),
             TrendCard(
               weeklyWeights: weeklyWeights,
-              onViewDetails: () {
-                context.pushNamed(Routes.historyScreen);
+              onViewDetails: () async {
+                await context.pushNamed(Routes.historyScreen);
+                if (context.mounted) {
+                  context.read<WeightTrackingCubit>().loadDashboardData();
+                }
               },
             ),
             verticalSpace(20),
-            TargetGoalAndCurrentStreak(totalEntries: state.totalEntries),
+            TargetGoalAndCurrentStreak(
+              totalEntries: state.totalEntries,
+              targetGoal: state.targetWeight ?? 135,
+              currentWeight: state.latestWeight ?? 135,
+              startingWeight: state.startingWeight,
+            ),
             verticalSpace(20),
           ],
         ),

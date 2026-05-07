@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:weight_tracker/core/theming/colors.dart';
 import 'package:weight_tracker/core/theming/styles.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/entities/weight_entry.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/widgets/entry_list_view_items.dart';
 
 class RecentEntriesSection extends StatelessWidget {
-  const RecentEntriesSection({super.key});
+  final List<WeightEntryEntity> weightEntries;
+
+  const RecentEntriesSection({super.key, required this.weightEntries});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +28,7 @@ class RecentEntriesSection extends StatelessWidget {
             ),
           ],
         ),
-        EntryListViewItems(),
+        EntryListViewItems(weightEntries: weightEntries),
       ],
     );
   }

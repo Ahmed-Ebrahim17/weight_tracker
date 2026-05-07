@@ -27,13 +27,15 @@ class SaveGoalButton extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 32.h),
       child: AppTextButton(
         buttonHeight: 60.h,
-        onPressed: () {
-          context.read<WeightTrackingCubit>().saveTargetGoal(
+        onPressed: () async {
+          await context.read<WeightTrackingCubit>().saveTargetGoal(
             targetWeight: _targetWeight,
             targetDate: _targetDate,
             goalType: _selectedGoal,
           );
-          context.pop();
+          if (context.mounted) {
+            context.pop();
+          }
         },
         backgroundColor: ColorsManager.primaryBlue,
         child: Text('Save Goal', style: AppTextStyles.font16BoldOnPrimary),

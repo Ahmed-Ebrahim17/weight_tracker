@@ -10,11 +10,13 @@ class SaveTargetGoalUseCase {
     required double targetWeight,
     required DateTime targetDate,
     required String goalType,
+    required double startingWeight,
   }) {
     return repository.saveTargetGoal(
       targetWeight: targetWeight,
       targetDate: targetDate,
       goalType: goalType,
+      startingWeight: startingWeight,
     );
   }
 }

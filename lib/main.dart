@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:weight_tracker/core/di/dependency_injection.dart';
 import 'package:weight_tracker/core/routing/app_router.dart';
+import 'package:weight_tracker/core/routing/routes.dart';
 import 'package:weight_tracker/weight_tracker_app.dart';
 
 Future<void> main() async {
@@ -27,5 +28,14 @@ Future<void> main() async {
 
   await setupDependencyInjection();
 
-  runApp(WeightTrackerApp(appRouter: AppRouter()));
+  final currentUser = Supabase.instance.client.auth.currentUser;
+  final initialRoute =
+      currentUser != null ? Routes.dashboardScreen : Routes.onboardingScreen;
+
+  runApp(
+    WeightTrackerApp(
+      appRouter: AppRouter(),
+      initialRoute: initialRoute,
+    ),
+  );
 }

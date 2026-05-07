@@ -1,97 +1,58 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:weight_tracker/core/helper/spacing.dart';
-import 'package:weight_tracker/core/theming/colors.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/entities/weight_entry.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/widgets/entry_list_items.dart';
 
-class EntryListViewItems extends StatefulWidget {
-  const EntryListViewItems({super.key});
+class EntryListViewItems extends StatelessWidget {
+  final List<WeightEntryEntity> weightEntries;
 
-  @override
-  State<EntryListViewItems> createState() => _EntryListViewItemsState();
-}
-
-class _EntryListViewItemsState extends State<EntryListViewItems> {
-  // Mock data for the items
-  final List<Map<String, dynamic>> _items = [
-    {
-      "weight": "164.2 lbs",
-      "date": "Today, 8:00 AM",
-      "diff": "-0.8 lbs",
-      "isDecrease": true,
-    },
-    {
-      "weight": "165.0 lbs",
-      "date": "Oct 12, 7:45 AM",
-      "diff": "0.0 lbs",
-      "isDecrease": false,
-    },
-    {
-      "weight": "165.0 lbs",
-      "date": "Oct 5, 8:15 AM",
-      "diff": "-1.2 lbs",
-      "isDecrease": true,
-    },
-  ];
+  const EntryListViewItems({super.key, required this.weightEntries});
 
   @override
   Widget build(BuildContext context) {
+    final displayEntries = weightEntries.take(3).toList();
+
     return ListView.separated(
-      itemCount: _items.length,
+      itemCount: displayEntries.length,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       separatorBuilder: (context, index) => verticalSpace(12),
       itemBuilder: (context, index) {
-        final item = _items[index];
+        final entry = displayEntries[index];
 
-        return Dismissible(
-          key: Key(item["date"]),
-          direction: DismissDirection.horizontal, // Swipe both ways
-          confirmDismiss: (direction) async {
-            if (direction == DismissDirection.startToEnd) {
-              // Swipe Right -> Edit
-              // TODO: Navigate to Edit screen or show bottom sheet
-              return false; // Don't actually dismiss the widget
-            } else if (direction == DismissDirection.endToStart) {
-              // Swipe Left -> Delete
-              return true; // Proceed with dismissal
-            }
-            return false;
-          },
-          onDismissed: (direction) {
-            if (direction == DismissDirection.endToStart) {
-              setState(() {
-                _items.removeAt(index);
-              });
-              // TODO: Call Cubit to delete item from database here
-            }
-          },
-          background: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              color: ColorsManager.primaryDeepBlue,
-              borderRadius: BorderRadius.circular(100.r), // Match pill shape
-            ),
-            child: Icon(Icons.edit_outlined, color: Colors.white, size: 28.sp),
-          ),
-          secondaryBackground: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            alignment: Alignment.centerRight,
-            decoration: BoxDecoration(
-              color: Colors.red.shade400,
-              borderRadius: BorderRadius.circular(100.r), // Match pill shape
-            ),
-            child: Icon(Icons.delete_outline, color: Colors.white, size: 28.sp),
-          ),
-          child: EntryListItem(
-            weight: item["weight"],
-            date: item["date"],
-            diff: item["diff"],
-            isDecrease: item["isDecrease"],
-          ),
+        String diffText = "0.0 lbs";
+        bool isDecrease = false;
+
+        if (index + 1 < weightEntries.length) {
+          final previousEntry = weightEntries[index + 1];
+          final diff = entry.weight - previousEntry.weight;
+          isDecrease = diff < 0;
+          diffText = "${diff >= 0 ? '+' : ''}${diff.toStringAsFixed(1)} lbs";
+        }
+
+        final String formattedDate = _getFormattedDate(entry.dateTime);
+
+        return EntryListItem(
+          weight: "${entry.weight.toStringAsFixed(1)} lbs",
+          date: formattedDate,
+          diff: diffText,
+          isDecrease: isDecrease,
+          entry: entry,
         );
       },
     );
+  }
+
+  String _getFormattedDate(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final entryDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    if (entryDate == today) {
+      return "Today, ${DateFormat('h:mm a').format(dateTime)}";
+    } else {
+      return DateFormat('MMM d, h:mm a').format(dateTime);
+    }
   }
 }
