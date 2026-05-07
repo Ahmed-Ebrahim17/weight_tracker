@@ -1,5 +1,6 @@
 import 'package:weight_tracker/core/error/api_result.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/entities/weight_entry.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/entities/target_goal_entity.dart';
 
 abstract class WeightTrackingRepository {
   Future<ApiResult<int>> addEntry({
@@ -32,4 +33,13 @@ abstract class WeightTrackingRepository {
   Future<ApiResult<double?>> getTrendLastNDays(int days);
 
   Future<ApiResult<double?>> getSevenDayTrend();
+
+  Future<ApiResult<void>> saveTargetGoal({
+    required double targetWeight,
+    required DateTime targetDate,
+    required String goalType,
+    required double startingWeight,
+  });
+
+  Future<ApiResult<TargetGoalEntity?>> getTargetGoal();
 }

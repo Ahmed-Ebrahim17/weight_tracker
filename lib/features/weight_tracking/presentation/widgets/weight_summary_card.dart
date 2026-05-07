@@ -50,7 +50,7 @@ class WeightSummaryCard extends StatelessWidget {
         children: [
           Text(
             'CURRENT WEIGHT',
-            style: AppTextStyles.font14BoldSemiBold.copyWith(
+            style: AppTextStyles.font14SemiBoldNearBlack.copyWith(
               letterSpacing: 1.5,
               color: ColorsManager.darkGray,
             ),
@@ -61,7 +61,10 @@ class WeightSummaryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(displayWeight, style: AppTextStyles.font72ExtraBoldVeryDarkGray),
+              Text(
+                displayWeight,
+                style: AppTextStyles.font72ExtraBoldVeryDarkGray,
+              ),
               SizedBox(width: 8.w),
               Text(
                 'lbs',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weight_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:weight_tracker/core/error/failure.dart' as failures;
 
 import 'package:weight_tracker/features/auth/domain/usecases/email_login_usecase.dart';
@@ -29,6 +30,22 @@ class AuthCubit extends Cubit<AuthState> {
     required this.getCurrentUserUseCase,
     required this.logoutUseCase,
   }) : super( AuthInitial());
+
+  AuthUserEntity? get currentUser {
+    final currentState = state;
+    if (currentState is AuthSuccess) {
+      return currentState.user;
+    }
+    return null;
+  }
+
+  String get currentUserName {
+    final name = currentUser?.fullName;
+    if (name != null && name.trim().isNotEmpty) {
+      return name.trim().split(' ').first;
+    }
+    return currentUser?.email.split('@').first ?? 'User';
+  }
 
   Future<void> loginWithEmail({
     required String email,

@@ -18,9 +18,11 @@ class _RegisterBlocListenerState extends State<RegisterBlocListener> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit,AuthState>(
-      listenWhen: (previous, current) => current is
-      AuthLoading ||current is AuthSuccess || current is AuthFailure,
+    return BlocListener<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          current is AuthLoading ||
+          current is AuthSuccess ||
+          current is AuthFailure,
       listener: (context, state) {
         switch (state) {
           case AuthLoading _:
@@ -28,7 +30,7 @@ class _RegisterBlocListenerState extends State<RegisterBlocListener> {
             break;
           case AuthSuccess _:
             _hideLoadingDialog(context);
-            context.pushReplacementNamed(Routes.splashScreen);
+            context.pushReplacementNamed(Routes.dashboardScreen);
             break;
           case AuthFailure(:final message):
             _hideLoadingDialog(context);

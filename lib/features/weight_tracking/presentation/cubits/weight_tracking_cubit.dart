@@ -7,6 +7,8 @@ import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_late
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_total_entries_count_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_trend_last_n_days_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/update_weight_entry_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/save_target_goal_usecase.dart';
+import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_target_goal_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_state.dart';
 
 class WeightTrackingCubit extends Cubit<WeightTrackingState> {
@@ -17,6 +19,8 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
   final GetTrendLastNDaysUseCase getTrendLastNDaysUseCase;
   final UpdateWeightEntryUseCase updateWeightEntryUseCase;
   final DeleteWeightEntryUseCase deleteWeightEntryUseCase;
+  final SaveTargetGoalUseCase saveTargetGoalUseCase;
+  final GetTargetGoalUseCase getTargetGoalUseCase;
 
   WeightTrackingCubit({
     required this.addWeightEntryUseCase,
@@ -26,6 +30,8 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
     required this.getTrendLastNDaysUseCase,
     required this.updateWeightEntryUseCase,
     required this.deleteWeightEntryUseCase,
+    required this.saveTargetGoalUseCase,
+    required this.getTargetGoalUseCase,
   }) : super(const WeightTrackingInitial());
 
   /// Loads all dashboard data: latest weight, 7-day trend, total count, recent entries.
@@ -36,6 +42,7 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
     final trendResult = await getTrendLastNDaysUseCase(7);
     final countResult = await getTotalEntriesCountUseCase();
     final recentResult = await getEntriesLastNDaysUseCase(7);
+    final goalResult = await getTargetGoalUseCase();
 
     // If any critical call fails, emit error
     final latestFailed = latestResult.isLeft();
@@ -60,12 +67,18 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
       (entries) => entries,
     );
 
+    final targetGoal = goalResult.fold((_) => null, (goal) => goal);
+
     emit(
       WeightTrackingLoaded(
         latestWeight: latestWeight,
         sevenDayTrend: sevenDayTrend,
         totalEntries: totalEntries,
         recentEntries: recentEntries.cast(),
+        targetWeight: targetGoal?.targetWeight,
+        startingWeight: targetGoal?.startingWeight,
+        targetDate: targetGoal?.targetDate,
+        goalType: targetGoal?.goalType,
       ),
     );
   }
@@ -120,6 +133,89 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
       (failure) => emit(WeightTrackingError(_mapFailureToMessage(failure))),
       (_) => loadDashboardData(),
     );
+  }
+
+  // ── Goal helpers ────────────────────────────────────────────────────────────
+
+  Future<void> saveTargetGoal({
+    required double targetWeight,
+    required DateTime targetDate,
+    required String goalType,
+  }) async {
+    final current = state;
+    double startingWeight = 0.0;
+    if (current is WeightTrackingLoaded && current.latestWeight != null) {
+      startingWeight = current.latestWeight!;
+    }
+
+    final result = await saveTargetGoalUseCase(
+      targetWeight: targetWeight,
+      targetDate: targetDate,
+      goalType: goalType,
+      startingWeight: startingWeight,
+    );
+
+    result.fold(
+      (failure) => emit(WeightTrackingError(_mapFailureToMessage(failure))),
+      (_) => loadDashboardData(),
+    );
+  }
+
+  /// Updates the target weight goal without triggering a full data reload.
+  void setTargetWeight(double targetWeight) {
+    final current = state;
+    if (current is WeightTrackingLoaded) {
+      emit(
+        WeightTrackingLoaded(
+          latestWeight: current.latestWeight,
+          sevenDayTrend: current.sevenDayTrend,
+          totalEntries: current.totalEntries,
+          recentEntries: current.recentEntries,
+          targetWeight: targetWeight,
+          startingWeight: current.startingWeight,
+          targetDate: current.targetDate,
+          goalType: current.goalType,
+        ),
+      );
+    }
+  }
+
+  /// Updates the target date goal without triggering a full data reload.
+  void setTargetDate(DateTime targetDate) {
+    final current = state;
+    if (current is WeightTrackingLoaded) {
+      emit(
+        WeightTrackingLoaded(
+          latestWeight: current.latestWeight,
+          sevenDayTrend: current.sevenDayTrend,
+          totalEntries: current.totalEntries,
+          recentEntries: current.recentEntries,
+          targetWeight: current.targetWeight,
+          startingWeight: current.startingWeight,
+          targetDate: targetDate,
+          goalType: current.goalType,
+        ),
+      );
+    }
+  }
+
+  /// Updates the goal type without triggering a full data reload.
+  void setGoalType(String goalType) {
+    final current = state;
+    if (current is WeightTrackingLoaded) {
+      emit(
+        WeightTrackingLoaded(
+          latestWeight: current.latestWeight,
+          sevenDayTrend: current.sevenDayTrend,
+          totalEntries: current.totalEntries,
+          recentEntries: current.recentEntries,
+          targetWeight: current.targetWeight,
+          startingWeight: current.startingWeight,
+          targetDate: current.targetDate,
+          goalType: goalType,
+        ),
+      );
+    }
   }
 
   String _mapFailureToMessage(failures.Failure failure) {

@@ -28,7 +28,7 @@ class _LoginBlocListenerState extends State<LoginBlocListener> {
             break;
           case AuthSuccess _:
             _hideLoadingDialog(context);
-            context.pushReplacementNamed(Routes.splashScreen);
+            context.pushReplacementNamed(Routes.dashboardScreen);
             break;
           case AuthFailure(:final message):
             _hideLoadingDialog(context);
