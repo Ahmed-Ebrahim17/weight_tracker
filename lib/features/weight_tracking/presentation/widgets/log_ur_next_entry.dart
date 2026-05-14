@@ -15,11 +15,11 @@ class LogYourNextEntry extends StatelessWidget {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
           width: double.infinity,
           decoration: BoxDecoration(
             color: ColorsManager.lightGray3,
-            borderRadius: BorderRadius.circular(32.r),
+            borderRadius: BorderRadius.circular(24.r),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -38,15 +38,15 @@ class LogYourNextEntry extends StatelessWidget {
             ],
           ),
         ),
-        verticalSpace(24),
+        verticalSpace(12),
 
         AppTextButton(
           onPressed: () {
             context.pushNamed(Routes.addWeightScreen);
           },
           backgroundColor: ColorsManager.primaryDeepBlue,
-          borderRadius: 70.r,
-          buttonHeight: 70.h,
+          borderRadius: 26.r,
+          buttonHeight: 52.h,
           buttonWidth: double.infinity,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

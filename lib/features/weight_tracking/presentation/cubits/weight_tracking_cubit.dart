@@ -69,6 +69,17 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
 
     final targetGoal = goalResult.fold((_) => null, (goal) => goal);
 
+    double? highest;
+    double? lowest;
+    double? average;
+
+    if (recentEntries.isNotEmpty) {
+      final weights = recentEntries.map((e) => e.weight as double).toList();
+      highest = weights.reduce((a, b) => a > b ? a : b);
+      lowest = weights.reduce((a, b) => a < b ? a : b);
+      average = weights.reduce((a, b) => a + b) / weights.length;
+    }
+
     emit(
       WeightTrackingLoaded(
         latestWeight: latestWeight,
@@ -79,6 +90,9 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
         startingWeight: targetGoal?.startingWeight,
         targetDate: targetGoal?.targetDate,
         goalType: targetGoal?.goalType,
+        highestWeight: highest,
+        lowestWeight: lowest,
+        averageWeight: average,
       ),
     );
   }
@@ -217,6 +231,9 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
       );
     }
   }
+
+  /// Resets the cubit to its initial state (e.g. on logout).
+  void reset() => emit(const WeightTrackingInitial());
 
   String _mapFailureToMessage(failures.Failure failure) {
     return switch (failure) {

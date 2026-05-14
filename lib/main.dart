@@ -1,3 +1,5 @@
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,21 +23,20 @@ Future<void> main() async {
     throw StateError('Missing SUPABASE_ANON_KEY in .env file.');
   }
 
-  await Supabase.initialize(
-    url: supabaseUrl,
-    anonKey: supabaseAnonKey,
-  );
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
   await setupDependencyInjection();
 
   final currentUser = Supabase.instance.client.auth.currentUser;
-  final initialRoute =
-      currentUser != null ? Routes.dashboardScreen : Routes.onboardingScreen;
+  final initialRoute = currentUser != null
+      ? Routes.mainScreen
+      : Routes.onboardingScreen;
 
   runApp(
-    WeightTrackerApp(
-      appRouter: AppRouter(),
-      initialRoute: initialRoute,
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) =>
+          WeightTrackerApp(appRouter: AppRouter(), initialRoute: initialRoute),
     ),
   );
 }

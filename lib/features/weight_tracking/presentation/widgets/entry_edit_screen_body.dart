@@ -63,7 +63,7 @@ class EntryEditScreenBody extends StatelessWidget {
                       controller: weightController,
                       label: AppStrings.currentWeight,
                     ),
-                    verticalSpace(32),
+                    verticalSpace(20),
                     _buildLabel(AppStrings.date),
                     verticalSpace(8),
                     AppTextFormField(
@@ -77,7 +77,7 @@ class EntryEditScreenBody extends StatelessWidget {
                       ),
                       validator: (v) => null,
                     ),
-                    verticalSpace(20),
+                    verticalSpace(16),
                     _buildLabel(AppStrings.time),
                     verticalSpace(8),
                     AppTextFormField(
@@ -91,7 +91,7 @@ class EntryEditScreenBody extends StatelessWidget {
                       ),
                       validator: (v) => null,
                     ),
-                    verticalSpace(20),
+                    verticalSpace(16),
                     _buildLabel(AppStrings.notesOptional),
                     verticalSpace(8),
                     AppTextFormField(
@@ -109,7 +109,7 @@ class EntryEditScreenBody extends StatelessWidget {
                     ),
                     verticalSpace(40),
                     AppTextButton(
-                      buttonHeight: 60.h,
+                      buttonHeight: 52.h,
                       borderRadius: 100.r,
                       onPressed: () {
                         final weight = double.tryParse(weightController.text);
@@ -148,7 +148,7 @@ class EntryEditScreenBody extends StatelessWidget {
                         ],
                       ),
                     ),
-                    verticalSpace(24),
+                    verticalSpace(16),
                     Center(
                       child: TextButton.icon(
                         onPressed: () {
@@ -179,7 +179,7 @@ class EntryEditScreenBody extends StatelessWidget {
                         ),
                       ),
                     ),
-                    verticalSpace(40),
+                    verticalSpace(24),
                   ],
                 ),
               ),

@@ -1,5 +1,6 @@
 class Routes {
-  static const String onboardingScreen = '/';
+  static const String onboardingScreen = '/onboarding';
+  static const String mainScreen = '/main';
   static const String dashboardScreen = '/dashboard';
   static const String loginScreen = '/login';
   static const String registerScreen = '/register';
@@ -17,4 +18,5 @@ class Routes {
   static const String historyScreen = '/history';
   static const String goalScreen = '/goal';
   static const String entryEditScreen = '/entry-edit';
+  static const String sevenDaysTrend = '/seven-days-trend';
 }

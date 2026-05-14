@@ -38,7 +38,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       decoration: BoxDecoration(
         color: ColorsManager.surface,
-        borderRadius: BorderRadius.circular(32.r),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -51,7 +51,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.all(10.r),
+            padding: EdgeInsets.all(8.r),
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: ColorsManager.lightGrayishGreen,
@@ -61,7 +61,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
               color: ColorsManager.nearBlack,
             ),
           ),
-          verticalSpace(16),
+          verticalSpace(12),
           Text(
             "TARGET GOAL",
             style: AppTextStyles.font12RegularGray.copyWith(letterSpacing: 1.2),
@@ -110,7 +110,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       decoration: BoxDecoration(
         color: ColorsManager.surface,
-        borderRadius: BorderRadius.circular(32.r),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -133,7 +133,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
               color: ColorsManager.darkOrange,
             ),
           ),
-          verticalSpace(16),
+          verticalSpace(12),
           Text(
             "CURRENT\nSTREAK",
             style: AppTextStyles.font12RegularGray.copyWith(

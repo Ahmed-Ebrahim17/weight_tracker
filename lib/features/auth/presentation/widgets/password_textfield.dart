@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:weight_tracker/core/constants/app_strings.dart';
 import 'package:weight_tracker/core/widgets/app_text_field.dart';
-import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
 
 import '../../../../core/helper/spacing.dart';
 import '../../../../core/theming/colors.dart';
 import '../../../../core/theming/styles.dart';
 
 class PasswordTextField extends StatefulWidget {
-  const PasswordTextField({super.key});
+  final TextEditingController controller;
+
+  const PasswordTextField({super.key, required this.controller});
 
   @override
   State<PasswordTextField> createState() => _PasswordTextFieldState();
@@ -43,7 +43,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
         ),
         verticalSpace(8),
         AppTextFormField(
-          controller: context.read<AuthCubit>().passwordController,
+          controller: widget.controller,
           inputTextStyle: AppTextStyles.font16RegularNearBlack,
           backgroundColor: ColorsManager.veryLightGray,
           hintText: AppStrings.enterPasswordHint,

@@ -38,6 +38,10 @@ class WeightTrackingLoaded extends WeightTrackingState {
   /// The user's goal type (e.g. Lose, Maintain, Gain). Null until the user sets one.
   final String? goalType;
 
+  final double? highestWeight;
+  final double? lowestWeight;
+  final double? averageWeight;
+
   const WeightTrackingLoaded({
     required this.latestWeight,
     required this.sevenDayTrend,
@@ -47,6 +51,9 @@ class WeightTrackingLoaded extends WeightTrackingState {
     this.startingWeight,
     this.targetDate,
     this.goalType,
+    this.highestWeight,
+    this.lowestWeight,
+    this.averageWeight,
   });
 }
 

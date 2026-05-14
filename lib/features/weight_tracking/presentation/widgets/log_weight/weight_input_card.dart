@@ -14,10 +14,10 @@ class WeightInputCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 40.h),
+      padding: EdgeInsets.symmetric(vertical: 24.h),
       decoration: BoxDecoration(
         color: ColorsManager.darkLightGray,
-        borderRadius: BorderRadius.circular(40.r),
+        borderRadius: BorderRadius.circular(24.r),
       ),
       child: Column(
         children: [
@@ -29,7 +29,7 @@ class WeightInputCard extends StatelessWidget {
                 letterSpacing: 1.2,
               ),
             ),
-            verticalSpace(16),
+            verticalSpace(12),
           ],
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -46,6 +46,7 @@ class WeightInputCard extends StatelessWidget {
               ),
               style: AppTextStyles.font48RegularPrimaryDeepBlue.copyWith(
                 fontWeight: FontWeight.w700,
+                fontSize: 36.sp,
               ),
               decoration: InputDecoration(
                 border: InputBorder.none,

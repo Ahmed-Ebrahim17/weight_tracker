@@ -25,7 +25,7 @@ class WeightSummaryCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
+      padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
       decoration: BoxDecoration(
         gradient: RadialGradient(
           center: Alignment.topRight,
@@ -36,7 +36,7 @@ class WeightSummaryCard extends StatelessWidget {
           ],
           stops: const [0.0, 0.5],
         ),
-        borderRadius: BorderRadius.circular(32.r),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -55,7 +55,7 @@ class WeightSummaryCard extends StatelessWidget {
               color: ColorsManager.darkGray,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 8.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -63,18 +63,22 @@ class WeightSummaryCard extends StatelessWidget {
             children: [
               Text(
                 displayWeight,
-                style: AppTextStyles.font72ExtraBoldVeryDarkGray,
+                style: AppTextStyles.font48RegularPrimaryDeepBlue.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: ColorsManager.nearBlack,
+                ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: 6.w),
               Text(
                 'lbs',
-                style: AppTextStyles.font24BoldNearBlack.copyWith(
+                style: AppTextStyles.font16RegularNearBlack.copyWith(
                   color: ColorsManager.darkGray,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 24.h),
+          SizedBox(height: 16.h),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             decoration: BoxDecoration(

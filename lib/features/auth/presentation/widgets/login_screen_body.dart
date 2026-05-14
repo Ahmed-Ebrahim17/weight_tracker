@@ -14,8 +14,24 @@ import 'package:weight_tracker/features/auth/presentation/widgets/or_continue_wi
 
 import '../../../../core/theming/styles.dart';
 
-class LoginScreenBody extends StatelessWidget {
+class LoginScreenBody extends StatefulWidget {
   const LoginScreenBody({super.key});
+
+  @override
+  State<LoginScreenBody> createState() => _LoginScreenBodyState();
+}
+
+class _LoginScreenBodyState extends State<LoginScreenBody> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,17 +43,20 @@ class LoginScreenBody extends StatelessWidget {
         top: MediaQuery.of(context).size.height * 0.11,
       ),
       child: Form(
-        key: context.read<AuthCubit>().formKey,
+        key: _formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Center(child: AppLogoWithLoginScreenHeader()),
             verticalSpace(32),
-            EmailAndPasswordFields(),
+            EmailAndPasswordFields(
+              emailController: _emailController,
+              passwordController: _passwordController,
+            ),
             verticalSpace(32),
             AppTextButton(
               onPressed: () {
-                validateThenDoLogin(context);
+                _validateThenDoLogin();
               },
               buttonHeight: 60,
               borderRadius: 48,
@@ -59,12 +78,11 @@ class LoginScreenBody extends StatelessWidget {
     );
   }
 
-  void validateThenDoLogin(BuildContext context) {
-    final authCubit = context.read<AuthCubit>();
-    if (authCubit.formKey.currentState!.validate()) {
-      authCubit.loginWithEmail(
-        email: authCubit.emailController.text,
-        password: authCubit.passwordController.text,
+  void _validateThenDoLogin() {
+    if (_formKey.currentState!.validate()) {
+      context.read<AuthCubit>().loginWithEmail(
+        email: _emailController.text,
+        password: _passwordController.text,
       );
     }
   }

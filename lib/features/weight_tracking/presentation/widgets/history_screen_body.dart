@@ -32,12 +32,12 @@ class HistoryScreenBody extends StatelessWidget {
         }
 
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+          padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.h, bottom: 80.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const AppNameWithNotificationsIcon(),
-              verticalSpace(24),
+              verticalSpace(16),
               Align(
                 alignment: Alignment.center,
                 child: Column(
@@ -55,12 +55,12 @@ class HistoryScreenBody extends StatelessWidget {
                   ],
                 ),
               ),
-              verticalSpace(24),
+              verticalSpace(16),
               WeightGoalCard(
                 currentWeight: currentWeight,
                 targetWeight: targetWeight,
               ),
-              verticalSpace(16),
+              verticalSpace(12),
               RecentEntriesSection(
                 weightEntries: state is WeightTrackingLoaded ? state.recentEntries : [],
               ),

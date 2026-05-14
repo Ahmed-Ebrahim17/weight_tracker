@@ -93,10 +93,14 @@ class _DateTimePickerCard extends StatelessWidget {
           children: [
             Icon(icon, color: ColorsManager.primaryBlueDark1, size: 18.sp),
             horizontalSpace(8),
-            Text(
-              text,
-              style: AppTextStyles.font14RegularNearBlack.copyWith(
-                fontWeight: FontWeight.w500,
+            Flexible(
+              child: Text(
+                text,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: AppTextStyles.font14RegularNearBlack.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],

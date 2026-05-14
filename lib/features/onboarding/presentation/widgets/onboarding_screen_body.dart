@@ -8,7 +8,6 @@ import 'package:weight_tracker/core/theming/colors.dart';
 import 'package:weight_tracker/core/theming/styles.dart';
 import 'package:weight_tracker/core/widgets/app_text_button.dart';
 import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
-import 'package:weight_tracker/features/auth/presentation/cubits/auth_state.dart';
 import 'package:weight_tracker/features/onboarding/presentation/widgets/app_logo_with_kinetic_sanctuary.dart';
 
 class OnboardingScreenBody extends StatelessWidget {
@@ -39,7 +38,7 @@ class OnboardingScreenBody extends StatelessWidget {
               if (authCubit.currentUser != null) {
                 Navigator.of(
                   context,
-                ).pushReplacementNamed(Routes.dashboardScreen);
+                ).pushReplacementNamed(Routes.mainScreen);
               } else {
                 Navigator.of(context).pushReplacementNamed(Routes.loginScreen);
               }

@@ -1,0 +1,1803 @@
+﻿diff --git a/lib/core/constants/app_strings.dart b/lib/core/constants/app_strings.dart
+index db6fd02..c2cf22f 100644
+--- a/lib/core/constants/app_strings.dart
++++ b/lib/core/constants/app_strings.dart
+@@ -38,7 +38,7 @@ class AppStrings {
+ 
+   // Header Messages
+   static const String welcomeBackLogin =
+-      'Welcome back. Log in to continue your\njourney.';
++      'Welcome back.\nLog in to continue your journey.';
+   static const String appTagline = 'Align your energy. Master your rest.';
+ 
+   // Error Messages - Routing
+@@ -75,4 +75,11 @@ class AppStrings {
+   static const String deleteEntryWarning =
+       'Are you sure you want to delete this weight entry? This action cannot be undone.';
+   static const String delete = 'Delete';
++  static const String weightFluctuation = 'Weight Fluctuation';
++  static const String weeklySummary = 'Weekly Summary';
++  static const String highest = 'HIGHEST';
++  static const String lowest = 'LOWEST';
++  static const String average = 'AVERAGE';
++  static const String trendInsight = 'Trend Insight';
++  static const String dailyBreakdown = 'Daily Breakdown';
+ }
+diff --git a/lib/core/database/database.dart b/lib/core/database/database.dart
+index e9c11c8..a475c56 100644
+--- a/lib/core/database/database.dart
++++ b/lib/core/database/database.dart
+@@ -11,8 +11,6 @@ class AppDatabase extends _$AppDatabase {
+   @override
+   int get schemaVersion => 1;
+ 
+-  // ==================== WEIGHT ENTRIES CRUD ====================
+-
+   /// Create a new weight entry
+   Future<int> createWeightEntry({
+     required double weight,
+@@ -31,21 +29,22 @@ class AppDatabase extends _$AppDatabase {
+ 
+   /// Get all weight entries (ordered by date descending)
+   Future<List<WeightEntry>> getAllWeightEntries() {
+-    return (select(weightEntries)
+-          ..orderBy([
+-            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
+-          ]))
++    return (select(weightEntries)..orderBy([
++          (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc),
++        ]))
+         .get();
+   }
+ 
+   /// Get the latest weight entry
+   Future<WeightEntry?> getLatestWeightEntry() async {
+-    final result = await (select(weightEntries)
+-          ..orderBy([
+-            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
+-          ])
+-          ..limit(1))
+-        .getSingleOrNull();
++    final result =
++        await (select(weightEntries)
++              ..orderBy([
++                (t) =>
++                    OrderingTerm(expression: t.date, mode: OrderingMode.desc),
++              ])
++              ..limit(1))
++            .getSingleOrNull();
+     return result;
+   }
+ 
+@@ -55,7 +54,7 @@ class AppDatabase extends _$AppDatabase {
+     return (select(weightEntries)
+           ..where((t) => t.date.isBiggerOrEqual(Variable(cutoffDate)))
+           ..orderBy([
+-            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
++            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc),
+           ]))
+         .get();
+   }
+@@ -91,10 +90,11 @@ class AppDatabase extends _$AppDatabase {
+ 
+   /// Get total number of weight entries
+   Future<int> getWeightEntriesCount() async {
+-    final result = await (selectOnly(weightEntries)
+-          ..addColumns([weightEntries.id.count()]))
+-        .map((row) => row.read<int>(weightEntries.id.count()))
+-        .getSingleOrNull();
++    final result =
++        await (selectOnly(weightEntries)
++              ..addColumns([weightEntries.id.count()]))
++            .map((row) => row.read<int>(weightEntries.id.count()))
++            .getSingleOrNull();
+     return result ?? 0;
+   }
+ }
+diff --git a/lib/core/di/dependency_injection.dart b/lib/core/di/dependency_injection.dart
+index 54d2ae5..e36b3f1 100644
+--- a/lib/core/di/dependency_injection.dart
++++ b/lib/core/di/dependency_injection.dart
+@@ -19,13 +19,13 @@ import 'package:weight_tracker/features/weight_tracking/data/datasources/weight_
+ import 'package:weight_tracker/features/weight_tracking/data/repositories/weight_tracking_repository_impl.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/repositories/weight_tracking_repository.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/usecases/add_weight_entry_usecase.dart';
+-import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_all_entries_usecase.dart';
++
+ import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_latest_entry_usecase.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_entries_last_n_days_usecase.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_total_entries_count_usecase.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/usecases/update_weight_entry_usecase.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/usecases/delete_weight_entry_usecase.dart';
+-import 'package:weight_tracker/features/weight_tracking/domain/usecases/delete_all_entries_usecase.dart';
++
+ import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_trend_last_n_days_usecase.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/usecases/save_target_goal_usecase.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_target_goal_usecase.dart';
+@@ -96,7 +96,7 @@ Future<void> setupDependencyInjection() async {
+     () => LogoutUseCase(repository: getIt<AuthRepository>()),
+   );
+ 
+-  getIt.registerFactory<AuthCubit>(
++  getIt.registerLazySingleton<AuthCubit>(
+     () => AuthCubit(
+       emailLoginUseCase: getIt<EmailLoginUseCase>(),
+       emailRegisterUseCase: getIt<EmailRegisterUseCase>(),
+@@ -141,9 +141,7 @@ Future<void> setupDependencyInjection() async {
+     () => AddWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
+   );
+ 
+-  getIt.registerLazySingleton<GetAllEntriesUseCase>(
+-    () => GetAllEntriesUseCase(repository: getIt<WeightTrackingRepository>()),
+-  );
++
+ 
+   getIt.registerLazySingleton<GetLatestEntryUseCase>(
+     () => GetLatestEntryUseCase(repository: getIt<WeightTrackingRepository>()),
+@@ -171,10 +169,7 @@ Future<void> setupDependencyInjection() async {
+         DeleteWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
+   );
+ 
+-  getIt.registerLazySingleton<DeleteAllEntriesUseCase>(
+-    () =>
+-        DeleteAllEntriesUseCase(repository: getIt<WeightTrackingRepository>()),
+-  );
++
+ 
+   getIt.registerLazySingleton<GetTrendLastNDaysUseCase>(
+     () =>
+diff --git a/lib/core/routing/app_router.dart b/lib/core/routing/app_router.dart
+index 8f2f90c..8518dbd 100644
+--- a/lib/core/routing/app_router.dart
++++ b/lib/core/routing/app_router.dart
+@@ -1,93 +1,60 @@
+ import 'package:flutter/material.dart';
+-import 'package:flutter_bloc/flutter_bloc.dart';
+-import 'package:weight_tracker/core/di/dependency_injection.dart';
+ import 'package:weight_tracker/core/routing/routes.dart';
+-import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
+ import 'package:weight_tracker/features/auth/presentation/screens/login_screen.dart';
+ import 'package:weight_tracker/features/auth/presentation/screens/register_screen.dart';
+ import 'package:weight_tracker/features/onboarding/presentation/screens/onboarding_screen.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/entities/weight_entry.dart';
+ import 'package:weight_tracker/features/weight_tracking/presentation/screens/dashboard_screen.dart';
+-import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
+ import 'package:weight_tracker/features/weight_tracking/presentation/screens/entry_edit_screen.dart';
+ import 'package:weight_tracker/features/weight_tracking/presentation/screens/goal_screen.dart';
+ import 'package:weight_tracker/features/weight_tracking/presentation/screens/history_screen.dart';
++import 'package:weight_tracker/features/weight_tracking/presentation/screens/main_screen.dart';
++import 'package:weight_tracker/features/weight_tracking/presentation/screens/seven_days_trend_screen.dart';
+ import 'package:weight_tracker/features/weight_tracking/presentation/widgets/log_weight_section.dart';
+ 
+ class AppRouter {
+   Route generateRoute(RouteSettings settings) {
+     switch (settings.name) {
+       case Routes.onboardingScreen:
+-        if (getIt.isRegistered<AuthCubit>()) {
+-          return MaterialPageRoute(
+-            builder: (context) => BlocProvider(
+-              create: (context) => getIt<AuthCubit>()..loadCurrentUser(),
+-              child: const OnboardingScreen(),
+-            ),
+-          );
+-        }
+-
+         return MaterialPageRoute(
+-          builder: (context) => const OnboardingScreen(),
++          builder: (_) => const OnboardingScreen(),
+         );
+       case Routes.loginScreen:
+         return MaterialPageRoute(
+-          builder: (context) => BlocProvider(
+-            create: (context) => getIt<AuthCubit>(),
+-            child: const LoginScreen(),
+-          ),
++          builder: (_) => const LoginScreen(),
+         );
+       case Routes.registerScreen:
+         return MaterialPageRoute(
+-          builder: (context) => BlocProvider(
+-            create: (context) => getIt<AuthCubit>(),
+-            child: const RegisterScreen(),
+-          ),
++          builder: (_) => const RegisterScreen(),
++        );
++      case Routes.mainScreen:
++        return MaterialPageRoute(
++          builder: (_) => const MainScreen(),
+         );
+       case Routes.dashboardScreen:
+         return MaterialPageRoute(
+-          builder: (context) => BlocProvider(
+-            create: (context) => getIt<AuthCubit>()..loadCurrentUser(),
+-            child: BlocProvider(
+-              create: (context) =>
+-                  getIt<WeightTrackingCubit>()..loadDashboardData(),
+-              child: const DashboardScreen(),
+-            ),
+-          ),
++          builder: (_) => const DashboardScreen(),
+         );
+       case Routes.addWeightScreen:
+         return MaterialPageRoute(
+-          builder: (context) => BlocProvider(
+-            create: (context) => getIt<WeightTrackingCubit>(),
+-            child: const LogWeightSection(),
+-          ),
++          builder: (_) => const LogWeightSection(),
+         );
+       case Routes.historyScreen:
+         return MaterialPageRoute(
+-          builder: (context) => BlocProvider(
+-            create: (context) => getIt<AuthCubit>(),
+-            child: BlocProvider(
+-              create: (context) =>
+-                  getIt<WeightTrackingCubit>()..loadDashboardData(),
+-              child: const HistoryScreen(),
+-            ),
+-          ),
++          builder: (_) => const HistoryScreen(),
+         );
+       case Routes.goalScreen:
+         return MaterialPageRoute(
+-          builder: (context) => BlocProvider(
+-            create: (context) =>
+-                getIt<WeightTrackingCubit>()..loadDashboardData(),
+-            child: const GoalScreen(),
+-          ),
++          builder: (_) => const GoalScreen(),
+         );
+       case Routes.entryEditScreen:
+         final entry = settings.arguments as WeightEntryEntity;
+         return MaterialPageRoute(
+-          builder: (context) => BlocProvider.value(
+-            value: getIt<WeightTrackingCubit>(),
+-            child: EntryEditScreen(entry: entry),
+-          ),
++          builder: (_) => EntryEditScreen(entry: entry),
++        );
++      case Routes.sevenDaysTrend:
++        return MaterialPageRoute(
++          builder: (_) => const SevenDaysTrendScreen(),
+         );
+       default:
+         return MaterialPageRoute(
+diff --git a/lib/core/routing/routes.dart b/lib/core/routing/routes.dart
+index a3956e2..0a8e0e6 100644
+--- a/lib/core/routing/routes.dart
++++ b/lib/core/routing/routes.dart
+@@ -1,5 +1,6 @@
+ class Routes {
+-  static const String onboardingScreen = '/';
++  static const String onboardingScreen = '/onboarding';
++  static const String mainScreen = '/main';
+   static const String dashboardScreen = '/dashboard';
+   static const String loginScreen = '/login';
+   static const String registerScreen = '/register';
+@@ -17,4 +18,5 @@ class Routes {
+   static const String historyScreen = '/history';
+   static const String goalScreen = '/goal';
+   static const String entryEditScreen = '/entry-edit';
++  static const String sevenDaysTrend = '/seven-days-trend';
+ }
+diff --git a/lib/features/auth/presentation/cubits/auth_cubit.dart b/lib/features/auth/presentation/cubits/auth_cubit.dart
+index c5b0a78..f540787 100644
+--- a/lib/features/auth/presentation/cubits/auth_cubit.dart
++++ b/lib/features/auth/presentation/cubits/auth_cubit.dart
+@@ -1,4 +1,3 @@
+-import 'package:flutter/material.dart';
+ import 'package:flutter_bloc/flutter_bloc.dart';
+ import 'package:weight_tracker/features/auth/domain/entities/auth_user.dart';
+ import 'package:weight_tracker/core/error/failure.dart' as failures;
+@@ -17,19 +16,13 @@ class AuthCubit extends Cubit<AuthState> {
+   final GetCurrentUserUseCase getCurrentUserUseCase;
+   final LogoutUseCase logoutUseCase;
+ 
+-  final formKey = GlobalKey<FormState>();
+-  final nameController = TextEditingController();
+-  final emailController = TextEditingController();
+-  final passwordController = TextEditingController();
+-  
+-
+   AuthCubit({
+     required this.emailLoginUseCase,
+     required this.emailRegisterUseCase,
+     required this.googleLoginUseCase,
+     required this.getCurrentUserUseCase,
+     required this.logoutUseCase,
+-  }) : super( AuthInitial());
++  }) : super(AuthInitial());
+ 
+   AuthUserEntity? get currentUser {
+     final currentState = state;
+@@ -119,12 +112,4 @@ class AuthCubit extends Cubit<AuthState> {
+       failures.UnknownFailure() => 'Unexpected error. Please try again.',
+     };
+   }
+-
+-  @override
+-  Future<void> close() {
+-    nameController.dispose();
+-    emailController.dispose();
+-    passwordController.dispose();
+-    return super.close();
+-  }
+ }
+\ No newline at end of file
+diff --git a/lib/features/auth/presentation/widgets/app_logo_with_login_scren_header.dart b/lib/features/auth/presentation/widgets/app_logo_with_login_scren_header.dart
+index 6c44479..3e50419 100644
+--- a/lib/features/auth/presentation/widgets/app_logo_with_login_scren_header.dart
++++ b/lib/features/auth/presentation/widgets/app_logo_with_login_scren_header.dart
+@@ -12,10 +12,15 @@ class AppLogoWithLoginScreenHeader extends StatelessWidget {
+   @override
+   Widget build(BuildContext context) {
+     return Column(
++      crossAxisAlignment: CrossAxisAlignment.center,
+       children: [
+         SvgPicture.asset(AppAssets.appLogo, height: 48.h),
+         verticalSpace(24),
+-        Text(AppStrings.appName, style: AppTextStyles.font32BoldNearBlack),
++        Text(
++          AppStrings.appName,
++          textAlign: TextAlign.center,
++          style: AppTextStyles.font32BoldNearBlack,
++        ),
+         verticalSpace(12),
+         Text(
+           AppStrings.welcomeBackLogin,
+diff --git a/lib/features/auth/presentation/widgets/email_address_textfield.dart b/lib/features/auth/presentation/widgets/email_address_textfield.dart
+index d33f62c..9f918e6 100644
+--- a/lib/features/auth/presentation/widgets/email_address_textfield.dart
++++ b/lib/features/auth/presentation/widgets/email_address_textfield.dart
+@@ -1,16 +1,16 @@
+ import 'package:flutter/material.dart';
+-import 'package:flutter_bloc/flutter_bloc.dart';
+ import 'package:flutter_screenutil/flutter_screenutil.dart';
+ import 'package:weight_tracker/core/constants/app_strings.dart';
+ import 'package:weight_tracker/core/widgets/app_text_field.dart';
+-import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
+ 
+ import '../../../../core/helper/spacing.dart';
+ import '../../../../core/theming/colors.dart';
+ import '../../../../core/theming/styles.dart';
+ 
+ class EmailAddressTextField extends StatelessWidget {
+-  const EmailAddressTextField({super.key});
++  final TextEditingController controller;
++
++  const EmailAddressTextField({super.key, required this.controller});
+ 
+   @override
+   Widget build(BuildContext context) {
+@@ -23,7 +23,7 @@ class EmailAddressTextField extends StatelessWidget {
+         ),
+         verticalSpace(8),
+         AppTextFormField(
+-          controller: context.read<AuthCubit>().emailController,
++          controller: controller,
+           inputTextStyle: AppTextStyles.font16RegularNearBlack,
+           backgroundColor: ColorsManager.veryLightGray,
+           hintText: AppStrings.enterEmailHint,
+diff --git a/lib/features/auth/presentation/widgets/email_and_password_fields.dart b/lib/features/auth/presentation/widgets/email_and_password_fields.dart
+index ce59088..3d732f1 100644
+--- a/lib/features/auth/presentation/widgets/email_and_password_fields.dart
++++ b/lib/features/auth/presentation/widgets/email_and_password_fields.dart
+@@ -5,15 +5,22 @@ import 'package:weight_tracker/features/auth/presentation/widgets/password_textf
+ import '../../../../core/helper/spacing.dart';
+ 
+ class EmailAndPasswordFields extends StatelessWidget {
+-  const EmailAndPasswordFields({super.key});
++  final TextEditingController emailController;
++  final TextEditingController passwordController;
++
++  const EmailAndPasswordFields({
++    super.key,
++    required this.emailController,
++    required this.passwordController,
++  });
+ 
+   @override
+   Widget build(BuildContext context) {
+     return Column(
+       children: [
+-        EmailAddressTextField(),
++        EmailAddressTextField(controller: emailController),
+         verticalSpace(24),
+-        PasswordTextField(),
++        PasswordTextField(controller: passwordController),
+       ],
+     );
+   }
+diff --git a/lib/features/auth/presentation/widgets/full_name_textfield.dart b/lib/features/auth/presentation/widgets/full_name_textfield.dart
+index 799e481..39559b8 100644
+--- a/lib/features/auth/presentation/widgets/full_name_textfield.dart
++++ b/lib/features/auth/presentation/widgets/full_name_textfield.dart
+@@ -1,16 +1,16 @@
+ import 'package:flutter/material.dart';
+-import 'package:flutter_bloc/flutter_bloc.dart';
+ import 'package:flutter_screenutil/flutter_screenutil.dart';
+ import 'package:weight_tracker/core/constants/app_strings.dart';
+ import 'package:weight_tracker/core/widgets/app_text_field.dart';
+-import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
+ 
+ import '../../../../core/helper/spacing.dart';
+ import '../../../../core/theming/colors.dart';
+ import '../../../../core/theming/styles.dart';
+ 
+ class FullNameTextField extends StatelessWidget {
+-  const FullNameTextField({super.key});
++  final TextEditingController controller;
++
++  const FullNameTextField({super.key, required this.controller});
+ 
+   @override
+   Widget build(BuildContext context) {
+@@ -23,7 +23,7 @@ class FullNameTextField extends StatelessWidget {
+         ),
+         verticalSpace(8),
+         AppTextFormField(
+-          controller: context.read<AuthCubit>().nameController,
++          controller: controller,
+           inputTextStyle: AppTextStyles.font16RegularNearBlack,
+           backgroundColor: ColorsManager.veryLightGray,
+           hintText: AppStrings.enterNameHint,
+diff --git a/lib/features/auth/presentation/widgets/login_bloc_listener.dart b/lib/features/auth/presentation/widgets/login_bloc_listener.dart
+index 98a0e2f..59a7e94 100644
+--- a/lib/features/auth/presentation/widgets/login_bloc_listener.dart
++++ b/lib/features/auth/presentation/widgets/login_bloc_listener.dart
+@@ -28,7 +28,7 @@ class _LoginBlocListenerState extends State<LoginBlocListener> {
+             break;
+           case AuthSuccess _:
+             _hideLoadingDialog(context);
+-            context.pushReplacementNamed(Routes.dashboardScreen);
++            context.pushReplacementNamed(Routes.mainScreen);
+             break;
+           case AuthFailure(:final message):
+             _hideLoadingDialog(context);
+diff --git a/lib/features/auth/presentation/widgets/login_screen_body.dart b/lib/features/auth/presentation/widgets/login_screen_body.dart
+index 5a06c10..7e4130c 100644
+--- a/lib/features/auth/presentation/widgets/login_screen_body.dart
++++ b/lib/features/auth/presentation/widgets/login_screen_body.dart
+@@ -14,9 +14,25 @@ import 'package:weight_tracker/features/auth/presentation/widgets/or_continue_wi
+ 
+ import '../../../../core/theming/styles.dart';
+ 
+-class LoginScreenBody extends StatelessWidget {
++class LoginScreenBody extends StatefulWidget {
+   const LoginScreenBody({super.key});
+ 
++  @override
++  State<LoginScreenBody> createState() => _LoginScreenBodyState();
++}
++
++class _LoginScreenBodyState extends State<LoginScreenBody> {
++  final _formKey = GlobalKey<FormState>();
++  final _emailController = TextEditingController();
++  final _passwordController = TextEditingController();
++
++  @override
++  void dispose() {
++    _emailController.dispose();
++    _passwordController.dispose();
++    super.dispose();
++  }
++
+   @override
+   Widget build(BuildContext context) {
+     return Padding(
+@@ -27,17 +43,20 @@ class LoginScreenBody extends StatelessWidget {
+         top: MediaQuery.of(context).size.height * 0.11,
+       ),
+       child: Form(
+-        key: context.read<AuthCubit>().formKey,
++        key: _formKey,
+         child: Column(
+           mainAxisAlignment: MainAxisAlignment.center,
+           children: [
+             Center(child: AppLogoWithLoginScreenHeader()),
+             verticalSpace(32),
+-            EmailAndPasswordFields(),
++            EmailAndPasswordFields(
++              emailController: _emailController,
++              passwordController: _passwordController,
++            ),
+             verticalSpace(32),
+             AppTextButton(
+               onPressed: () {
+-                validateThenDoLogin(context);
++                _validateThenDoLogin();
+               },
+               buttonHeight: 60,
+               borderRadius: 48,
+@@ -59,12 +78,11 @@ class LoginScreenBody extends StatelessWidget {
+     );
+   }
+ 
+-  void validateThenDoLogin(BuildContext context) {
+-    final authCubit = context.read<AuthCubit>();
+-    if (authCubit.formKey.currentState!.validate()) {
+-      authCubit.loginWithEmail(
+-        email: authCubit.emailController.text,
+-        password: authCubit.passwordController.text,
++  void _validateThenDoLogin() {
++    if (_formKey.currentState!.validate()) {
++      context.read<AuthCubit>().loginWithEmail(
++        email: _emailController.text,
++        password: _passwordController.text,
+       );
+     }
+   }
+diff --git a/lib/features/auth/presentation/widgets/name_email_and_password_fields.dart b/lib/features/auth/presentation/widgets/name_email_and_password_fields.dart
+index e2dcf17..9258359 100644
+--- a/lib/features/auth/presentation/widgets/name_email_and_password_fields.dart
++++ b/lib/features/auth/presentation/widgets/name_email_and_password_fields.dart
+@@ -6,17 +6,26 @@ import 'package:weight_tracker/features/auth/presentation/widgets/password_textf
+ import '../../../../core/helper/spacing.dart';
+ 
+ class NameEmailAndPasswordFields extends StatelessWidget {
+-  const NameEmailAndPasswordFields({super.key});
++  final TextEditingController nameController;
++  final TextEditingController emailController;
++  final TextEditingController passwordController;
++
++  const NameEmailAndPasswordFields({
++    super.key,
++    required this.nameController,
++    required this.emailController,
++    required this.passwordController,
++  });
+ 
+   @override
+   Widget build(BuildContext context) {
+     return Column(
+       children: [
+-        FullNameTextField(),
++        FullNameTextField(controller: nameController),
+         verticalSpace(24),
+-        EmailAddressTextField(),
++        EmailAddressTextField(controller: emailController),
+         verticalSpace(24),
+-        PasswordTextField(),
++        PasswordTextField(controller: passwordController),
+       ],
+     );
+   }
+diff --git a/lib/features/auth/presentation/widgets/password_textfield.dart b/lib/features/auth/presentation/widgets/password_textfield.dart
+index 7a1b226..2441479 100644
+--- a/lib/features/auth/presentation/widgets/password_textfield.dart
++++ b/lib/features/auth/presentation/widgets/password_textfield.dart
+@@ -1,16 +1,16 @@
+ import 'package:flutter/material.dart';
+-import 'package:flutter_bloc/flutter_bloc.dart';
+ import 'package:flutter_screenutil/flutter_screenutil.dart';
+ import 'package:weight_tracker/core/constants/app_strings.dart';
+ import 'package:weight_tracker/core/widgets/app_text_field.dart';
+-import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
+ 
+ import '../../../../core/helper/spacing.dart';
+ import '../../../../core/theming/colors.dart';
+ import '../../../../core/theming/styles.dart';
+ 
+ class PasswordTextField extends StatefulWidget {
+-  const PasswordTextField({super.key});
++  final TextEditingController controller;
++
++  const PasswordTextField({super.key, required this.controller});
+ 
+   @override
+   State<PasswordTextField> createState() => _PasswordTextFieldState();
+@@ -43,7 +43,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
+         ),
+         verticalSpace(8),
+         AppTextFormField(
+-          controller: context.read<AuthCubit>().passwordController,
++          controller: widget.controller,
+           inputTextStyle: AppTextStyles.font16RegularNearBlack,
+           backgroundColor: ColorsManager.veryLightGray,
+           hintText: AppStrings.enterPasswordHint,
+diff --git a/lib/features/auth/presentation/widgets/register_bloc_listener.dart b/lib/features/auth/presentation/widgets/register_bloc_listener.dart
+index afdda41..f8f4624 100644
+--- a/lib/features/auth/presentation/widgets/register_bloc_listener.dart
++++ b/lib/features/auth/presentation/widgets/register_bloc_listener.dart
+@@ -30,7 +30,7 @@ class _RegisterBlocListenerState extends State<RegisterBlocListener> {
+             break;
+           case AuthSuccess _:
+             _hideLoadingDialog(context);
+-            context.pushReplacementNamed(Routes.dashboardScreen);
++            context.pushReplacementNamed(Routes.mainScreen);
+             break;
+           case AuthFailure(:final message):
+             _hideLoadingDialog(context);
+diff --git a/lib/features/auth/presentation/widgets/register_screen_body.dart b/lib/features/auth/presentation/widgets/register_screen_body.dart
+index aa50417..385c98e 100644
+--- a/lib/features/auth/presentation/widgets/register_screen_body.dart
++++ b/lib/features/auth/presentation/widgets/register_screen_body.dart
+@@ -14,9 +14,27 @@ import 'package:weight_tracker/features/auth/presentation/widgets/terms_and_cond
+ 
+ import '../../../../core/theming/styles.dart';
+ 
+-class RegisterScreenBody extends StatelessWidget {
++class RegisterScreenBody extends StatefulWidget {
+   const RegisterScreenBody({super.key});
+ 
++  @override
++  State<RegisterScreenBody> createState() => _RegisterScreenBodyState();
++}
++
++class _RegisterScreenBodyState extends State<RegisterScreenBody> {
++  final _formKey = GlobalKey<FormState>();
++  final _nameController = TextEditingController();
++  final _emailController = TextEditingController();
++  final _passwordController = TextEditingController();
++
++  @override
++  void dispose() {
++    _nameController.dispose();
++    _emailController.dispose();
++    _passwordController.dispose();
++    super.dispose();
++  }
++
+   @override
+   Widget build(BuildContext context) {
+     return Padding(
+@@ -28,17 +46,21 @@ class RegisterScreenBody extends StatelessWidget {
+       ),
+       child: SingleChildScrollView(
+         child: Form(
+-          key: context.read<AuthCubit>().formKey,
++          key: _formKey,
+           child: Column(
+             mainAxisAlignment: MainAxisAlignment.center,
+             children: [
+               Center(child: AppLogoWithRegisterScreenHeader()),
+               verticalSpace(32),
+-              NameEmailAndPasswordFields(),
++              NameEmailAndPasswordFields(
++                nameController: _nameController,
++                emailController: _emailController,
++                passwordController: _passwordController,
++              ),
+               verticalSpace(32),
+               AppTextButton(
+                 onPressed: () {
+-                  validateThenDoSignup(context);
++                  _validateThenDoSignup();
+                 },
+                 buttonHeight: 60,
+                 borderRadius: 48,
+@@ -57,14 +79,14 @@ class RegisterScreenBody extends StatelessWidget {
+       ),
+     );
+   }
+-  void validateThenDoSignup(BuildContext context) {
+-    final authCubit = context.read<AuthCubit>();
+-    if (authCubit.formKey.currentState!.validate()) {
+-      authCubit.registerWithEmail(
+-        email: authCubit.emailController.text,
+-        password: authCubit.passwordController.text,
+-        fullName: authCubit.nameController.text,
+-      );
++
++  void _validateThenDoSignup() {
++    if (_formKey.currentState!.validate()) {
++      context.read<AuthCubit>().registerWithEmail(
++            email: _emailController.text,
++            password: _passwordController.text,
++            fullName: _nameController.text,
++          );
+     }
+   }
+ }
+diff --git a/lib/features/onboarding/presentation/widgets/onboarding_screen_body.dart b/lib/features/onboarding/presentation/widgets/onboarding_screen_body.dart
+index 9500e51..23fd64f 100644
+--- a/lib/features/onboarding/presentation/widgets/onboarding_screen_body.dart
++++ b/lib/features/onboarding/presentation/widgets/onboarding_screen_body.dart
+@@ -8,7 +8,6 @@ import 'package:weight_tracker/core/theming/colors.dart';
+ import 'package:weight_tracker/core/theming/styles.dart';
+ import 'package:weight_tracker/core/widgets/app_text_button.dart';
+ import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
+-import 'package:weight_tracker/features/auth/presentation/cubits/auth_state.dart';
+ import 'package:weight_tracker/features/onboarding/presentation/widgets/app_logo_with_kinetic_sanctuary.dart';
+ 
+ class OnboardingScreenBody extends StatelessWidget {
+@@ -39,7 +38,7 @@ class OnboardingScreenBody extends StatelessWidget {
+               if (authCubit.currentUser != null) {
+                 Navigator.of(
+                   context,
+-                ).pushReplacementNamed(Routes.dashboardScreen);
++                ).pushReplacementNamed(Routes.mainScreen);
+               } else {
+                 Navigator.of(context).pushReplacementNamed(Routes.loginScreen);
+               }
+diff --git a/lib/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart b/lib/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart
+index d52f0ae..fb4513c 100644
+--- a/lib/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart
++++ b/lib/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart
+@@ -69,6 +69,17 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
+ 
+     final targetGoal = goalResult.fold((_) => null, (goal) => goal);
+ 
++    double? highest;
++    double? lowest;
++    double? average;
++
++    if (recentEntries.isNotEmpty) {
++      final weights = recentEntries.map((e) => e.weight as double).toList();
++      highest = weights.reduce((a, b) => a > b ? a : b);
++      lowest = weights.reduce((a, b) => a < b ? a : b);
++      average = weights.reduce((a, b) => a + b) / weights.length;
++    }
++
+     emit(
+       WeightTrackingLoaded(
+         latestWeight: latestWeight,
+@@ -79,6 +90,9 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
+         startingWeight: targetGoal?.startingWeight,
+         targetDate: targetGoal?.targetDate,
+         goalType: targetGoal?.goalType,
++        highestWeight: highest,
++        lowestWeight: lowest,
++        averageWeight: average,
+       ),
+     );
+   }
+@@ -218,6 +232,9 @@ class WeightTrackingCubit extends Cubit<WeightTrackingState> {
+     }
+   }
+ 
++  /// Resets the cubit to its initial state (e.g. on logout).
++  void reset() => emit(const WeightTrackingInitial());
++
+   String _mapFailureToMessage(failures.Failure failure) {
+     return switch (failure) {
+       failures.NetworkFailure() => 'No internet connection.',
+diff --git a/lib/features/weight_tracking/presentation/cubits/weight_tracking_state.dart b/lib/features/weight_tracking/presentation/cubits/weight_tracking_state.dart
+index 8a3c969..f01c85f 100644
+--- a/lib/features/weight_tracking/presentation/cubits/weight_tracking_state.dart
++++ b/lib/features/weight_tracking/presentation/cubits/weight_tracking_state.dart
+@@ -38,6 +38,10 @@ class WeightTrackingLoaded extends WeightTrackingState {
+   /// The user's goal type (e.g. Lose, Maintain, Gain). Null until the user sets one.
+   final String? goalType;
+ 
++  final double? highestWeight;
++  final double? lowestWeight;
++  final double? averageWeight;
++
+   const WeightTrackingLoaded({
+     required this.latestWeight,
+     required this.sevenDayTrend,
+@@ -47,6 +51,9 @@ class WeightTrackingLoaded extends WeightTrackingState {
+     this.startingWeight,
+     this.targetDate,
+     this.goalType,
++    this.highestWeight,
++    this.lowestWeight,
++    this.averageWeight,
+   });
+ }
+ 
+diff --git a/lib/features/weight_tracking/presentation/screens/goal_screen.dart b/lib/features/weight_tracking/presentation/screens/goal_screen.dart
+index 047c956..14fb363 100644
+--- a/lib/features/weight_tracking/presentation/screens/goal_screen.dart
++++ b/lib/features/weight_tracking/presentation/screens/goal_screen.dart
+@@ -9,8 +9,6 @@ class GoalScreen extends StatelessWidget {
+   Widget build(BuildContext context) {
+     return Scaffold(
+       appBar: AppBar(
+-        backgroundColor: Colors.transparent,
+-        surfaceTintColor: Colors.transparent,
+         centerTitle: true,
+         title: Text('Set Goal', style: AppTextStyles.font20BoldVeryDarkGray),
+         elevation: 0,
+diff --git a/lib/features/weight_tracking/presentation/widgets/dashboard_loaded_view.dart b/lib/features/weight_tracking/presentation/widgets/dashboard_loaded_view.dart
+index 95a015a..9065e7d 100644
+--- a/lib/features/weight_tracking/presentation/widgets/dashboard_loaded_view.dart
++++ b/lib/features/weight_tracking/presentation/widgets/dashboard_loaded_view.dart
+@@ -6,7 +6,6 @@ import 'package:weight_tracker/core/helper/spacing.dart';
+ import 'package:weight_tracker/core/routing/routes.dart';
+ import 'package:weight_tracker/core/theming/colors.dart';
+ import 'package:weight_tracker/core/theming/styles.dart';
+-import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
+ import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
+ import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_state.dart';
+ import 'package:weight_tracker/features/weight_tracking/presentation/widgets/target_goal_and_current_streak.dart';
+@@ -29,7 +28,12 @@ class DashboardLoadedView extends StatelessWidget {
+     return Scaffold(
+       backgroundColor: ColorsManager.veryLightGray,
+       body: SingleChildScrollView(
+-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
++        padding: EdgeInsets.only(
++          left: 20.w,
++          right: 20.w,
++          top: 20.h,
++          bottom: 80.h,
++        ),
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+@@ -45,43 +49,28 @@ class DashboardLoadedView extends StatelessWidget {
+                 );
+               },
+             ),
+-            verticalSpace(20),
++            verticalSpace(16),
+             WeightSummaryCard(
+               currentWeight: state.latestWeight,
+               weeklyChange: state.sevenDayTrend,
+             ),
+-            verticalSpace(20),
++            verticalSpace(16),
+             TrendCard(
+               weeklyWeights: weeklyWeights,
+               onViewDetails: () async {
+-                await context.pushNamed(Routes.historyScreen);
+-                if (context.mounted) {
+-                  context.read<WeightTrackingCubit>().loadDashboardData();
+-                }
++                await context.pushNamed(Routes.sevenDaysTrend);
+               },
+             ),
+-            verticalSpace(20),
++            verticalSpace(16),
+             TargetGoalAndCurrentStreak(
+               totalEntries: state.totalEntries,
+               targetGoal: state.targetWeight ?? 135,
+               currentWeight: state.latestWeight ?? 135,
+               startingWeight: state.startingWeight,
+             ),
+-            verticalSpace(20),
+           ],
+         ),
+       ),
+-      floatingActionButton: FloatingActionButton(
+-        shape: const CircleBorder(),
+-        onPressed: () async {
+-          await context.pushNamed(Routes.addWeightScreen);
+-          if (context.mounted) {
+-            context.read<WeightTrackingCubit>().loadDashboardData();
+-          }
+-        },
+-        backgroundColor: ColorsManager.primaryBlue,
+-        child: Icon(Icons.add, color: ColorsManager.onPrimary),
+-      ),
+     );
+   }
+ }
+diff --git a/lib/features/weight_tracking/presentation/widgets/delete_entry_bottom_sheet.dart b/lib/features/weight_tracking/presentation/widgets/delete_entry_bottom_sheet.dart
+index 3f556be..d7f2272 100644
+--- a/lib/features/weight_tracking/presentation/widgets/delete_entry_bottom_sheet.dart
++++ b/lib/features/weight_tracking/presentation/widgets/delete_entry_bottom_sheet.dart
+@@ -41,14 +41,14 @@ class DeleteEntryBottomSheet extends StatelessWidget {
+             style: AppTextStyles.font24BoldNearBlack,
+             textAlign: TextAlign.center,
+           ),
+-          verticalSpace(16),
++          verticalSpace(12),
+           // Message
+           Text(
+             AppStrings.deleteEntryWarning,
+             style: AppTextStyles.font14RegularDarkGray,
+             textAlign: TextAlign.center,
+           ),
+-          verticalSpace(32),
++          verticalSpace(24),
+           // Actions
+           AppTextButton(
+             backgroundColor: ColorsManager.red,
+@@ -74,7 +74,7 @@ class DeleteEntryBottomSheet extends StatelessWidget {
+               ),
+             ),
+           ),
+-          verticalSpace(16),
++          verticalSpace(12),
+         ],
+       ),
+     );
+diff --git a/lib/features/weight_tracking/presentation/widgets/entry_edit_screen_body.dart b/lib/features/weight_tracking/presentation/widgets/entry_edit_screen_body.dart
+index 2c1c640..1fe0d89 100644
+--- a/lib/features/weight_tracking/presentation/widgets/entry_edit_screen_body.dart
++++ b/lib/features/weight_tracking/presentation/widgets/entry_edit_screen_body.dart
+@@ -63,7 +63,7 @@ class EntryEditScreenBody extends StatelessWidget {
+                       controller: weightController,
+                       label: AppStrings.currentWeight,
+                     ),
+-                    verticalSpace(32),
++                    verticalSpace(20),
+                     _buildLabel(AppStrings.date),
+                     verticalSpace(8),
+                     AppTextFormField(
+@@ -77,7 +77,7 @@ class EntryEditScreenBody extends StatelessWidget {
+                       ),
+                       validator: (v) => null,
+                     ),
+-                    verticalSpace(20),
++                    verticalSpace(16),
+                     _buildLabel(AppStrings.time),
+                     verticalSpace(8),
+                     AppTextFormField(
+@@ -91,7 +91,7 @@ class EntryEditScreenBody extends StatelessWidget {
+                       ),
+                       validator: (v) => null,
+                     ),
+-                    verticalSpace(20),
++                    verticalSpace(16),
+                     _buildLabel(AppStrings.notesOptional),
+                     verticalSpace(8),
+                     AppTextFormField(
+@@ -109,7 +109,7 @@ class EntryEditScreenBody extends StatelessWidget {
+                     ),
+                     verticalSpace(40),
+                     AppTextButton(
+-                      buttonHeight: 60.h,
++                      buttonHeight: 52.h,
+                       borderRadius: 100.r,
+                       onPressed: () {
+                         final weight = double.tryParse(weightController.text);
+@@ -148,7 +148,7 @@ class EntryEditScreenBody extends StatelessWidget {
+                         ],
+                       ),
+                     ),
+-                    verticalSpace(24),
++                    verticalSpace(16),
+                     Center(
+                       child: TextButton.icon(
+                         onPressed: () {
+@@ -179,7 +179,7 @@ class EntryEditScreenBody extends StatelessWidget {
+                         ),
+                       ),
+                     ),
+-                    verticalSpace(40),
++                    verticalSpace(24),
+                   ],
+                 ),
+               ),
+diff --git a/lib/features/weight_tracking/presentation/widgets/history_screen_body.dart b/lib/features/weight_tracking/presentation/widgets/history_screen_body.dart
+index 6cc3ad9..5c52f98 100644
+--- a/lib/features/weight_tracking/presentation/widgets/history_screen_body.dart
++++ b/lib/features/weight_tracking/presentation/widgets/history_screen_body.dart
+@@ -32,12 +32,12 @@ class HistoryScreenBody extends StatelessWidget {
+         }
+ 
+         return Padding(
+-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
++          padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.h, bottom: 80.h),
+           child: Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               const AppNameWithNotificationsIcon(),
+-              verticalSpace(24),
++              verticalSpace(16),
+               Align(
+                 alignment: Alignment.center,
+                 child: Column(
+@@ -55,12 +55,12 @@ class HistoryScreenBody extends StatelessWidget {
+                   ],
+                 ),
+               ),
+-              verticalSpace(24),
++              verticalSpace(16),
+               WeightGoalCard(
+                 currentWeight: currentWeight,
+                 targetWeight: targetWeight,
+               ),
+-              verticalSpace(16),
++              verticalSpace(12),
+               RecentEntriesSection(
+                 weightEntries: state is WeightTrackingLoaded ? state.recentEntries : [],
+               ),
+diff --git a/lib/features/weight_tracking/presentation/widgets/loading_goal_view.dart b/lib/features/weight_tracking/presentation/widgets/loading_goal_view.dart
+index c4a8028..3ced3e1 100644
+--- a/lib/features/weight_tracking/presentation/widgets/loading_goal_view.dart
++++ b/lib/features/weight_tracking/presentation/widgets/loading_goal_view.dart
+@@ -110,7 +110,7 @@ class LoadingGoalView extends StatelessWidget {
+                       physics: const NeverScrollableScrollPhysics(),
+                       itemCount: 6,
+                       itemExtent: 56,
+-                      itemBuilder: (_, __) => Padding(
++                      itemBuilder: (_, _) => Padding(
+                         padding: EdgeInsets.symmetric(horizontal: 6.w),
+                         child: Column(
+                           mainAxisAlignment: MainAxisAlignment.center,
+@@ -161,11 +161,11 @@ class LoadingGoalView extends StatelessWidget {
+       );
+ 
+   Widget _circle(double size) => Container(
+-        width: size,
+-        height: size,
+-        decoration: const BoxDecoration(
+-          color: Colors.white,
+-          shape: BoxShape.circle,
+-        ),
+-      );
++    width: size,
++    height: size,
++    decoration: const BoxDecoration(
++      color: Colors.white,
++      shape: BoxShape.circle,
++    ),
++  );
+ }
+diff --git a/lib/features/weight_tracking/presentation/widgets/log_ur_next_entry.dart b/lib/features/weight_tracking/presentation/widgets/log_ur_next_entry.dart
+index d1c2552..dac8751 100644
+--- a/lib/features/weight_tracking/presentation/widgets/log_ur_next_entry.dart
++++ b/lib/features/weight_tracking/presentation/widgets/log_ur_next_entry.dart
+@@ -15,11 +15,11 @@ class LogYourNextEntry extends StatelessWidget {
+     return Column(
+       children: [
+         Container(
+-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
++          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+           width: double.infinity,
+           decoration: BoxDecoration(
+             color: ColorsManager.lightGray3,
+-            borderRadius: BorderRadius.circular(32.r),
++            borderRadius: BorderRadius.circular(24.r),
+           ),
+           child: Column(
+             mainAxisAlignment: MainAxisAlignment.center,
+@@ -38,15 +38,15 @@ class LogYourNextEntry extends StatelessWidget {
+             ],
+           ),
+         ),
+-        verticalSpace(24),
++        verticalSpace(12),
+ 
+         AppTextButton(
+           onPressed: () {
+             context.pushNamed(Routes.addWeightScreen);
+           },
+           backgroundColor: ColorsManager.primaryDeepBlue,
+-          borderRadius: 70.r,
+-          buttonHeight: 70.h,
++          borderRadius: 26.r,
++          buttonHeight: 52.h,
+           buttonWidth: double.infinity,
+           child: Row(
+             mainAxisAlignment: MainAxisAlignment.center,
+diff --git a/lib/features/weight_tracking/presentation/widgets/log_weight/date_time_picker_row.dart b/lib/features/weight_tracking/presentation/widgets/log_weight/date_time_picker_row.dart
+index 13fca21..b33eb65 100644
+--- a/lib/features/weight_tracking/presentation/widgets/log_weight/date_time_picker_row.dart
++++ b/lib/features/weight_tracking/presentation/widgets/log_weight/date_time_picker_row.dart
+@@ -93,10 +93,14 @@ class _DateTimePickerCard extends StatelessWidget {
+           children: [
+             Icon(icon, color: ColorsManager.primaryBlueDark1, size: 18.sp),
+             horizontalSpace(8),
+-            Text(
+-              text,
+-              style: AppTextStyles.font14RegularNearBlack.copyWith(
+-                fontWeight: FontWeight.w500,
++            Flexible(
++              child: Text(
++                text,
++                overflow: TextOverflow.ellipsis,
++                maxLines: 1,
++                style: AppTextStyles.font14RegularNearBlack.copyWith(
++                  fontWeight: FontWeight.w500,
++                ),
+               ),
+             ),
+           ],
+diff --git a/lib/features/weight_tracking/presentation/widgets/log_weight/log_weight_bottom_actions.dart b/lib/features/weight_tracking/presentation/widgets/log_weight/log_weight_bottom_actions.dart
+index 95543ae..922993a 100644
+--- a/lib/features/weight_tracking/presentation/widgets/log_weight/log_weight_bottom_actions.dart
++++ b/lib/features/weight_tracking/presentation/widgets/log_weight/log_weight_bottom_actions.dart
+@@ -15,7 +15,7 @@ class LogWeightBottomActions extends StatelessWidget {
+       children: [
+         AppTextButton(
+           onPressed: onSave,
+-          buttonHeight: 60,
++          buttonHeight: 52,
+           borderRadius: 30,
+           child: Text(
+             'Save Entry',
+@@ -24,7 +24,7 @@ class LogWeightBottomActions extends StatelessWidget {
+             ),
+           ),
+         ),
+-        verticalSpace(24),
++        verticalSpace(16),
+         Center(
+           child: Text(
+             'DATA IS STORED LOCALLY ON THIS DEVICE',
+diff --git a/lib/features/weight_tracking/presentation/widgets/log_weight/weight_input_card.dart b/lib/features/weight_tracking/presentation/widgets/log_weight/weight_input_card.dart
+index 4e1bb80..8e200da 100644
+--- a/lib/features/weight_tracking/presentation/widgets/log_weight/weight_input_card.dart
++++ b/lib/features/weight_tracking/presentation/widgets/log_weight/weight_input_card.dart
+@@ -14,10 +14,10 @@ class WeightInputCard extends StatelessWidget {
+   Widget build(BuildContext context) {
+     return Container(
+       width: double.infinity,
+-      padding: EdgeInsets.symmetric(vertical: 40.h),
++      padding: EdgeInsets.symmetric(vertical: 24.h),
+       decoration: BoxDecoration(
+         color: ColorsManager.darkLightGray,
+-        borderRadius: BorderRadius.circular(40.r),
++        borderRadius: BorderRadius.circular(24.r),
+       ),
+       child: Column(
+         children: [
+@@ -29,7 +29,7 @@ class WeightInputCard extends StatelessWidget {
+                 letterSpacing: 1.2,
+               ),
+             ),
+-            verticalSpace(16),
++            verticalSpace(12),
+           ],
+           Row(
+             mainAxisAlignment: MainAxisAlignment.center,
+@@ -46,6 +46,7 @@ class WeightInputCard extends StatelessWidget {
+               ),
+               style: AppTextStyles.font48RegularPrimaryDeepBlue.copyWith(
+                 fontWeight: FontWeight.w700,
++                fontSize: 36.sp,
+               ),
+               decoration: InputDecoration(
+                 border: InputBorder.none,
+diff --git a/lib/features/weight_tracking/presentation/widgets/log_weight_section.dart b/lib/features/weight_tracking/presentation/widgets/log_weight_section.dart
+index 6920dde..abe7585 100644
+--- a/lib/features/weight_tracking/presentation/widgets/log_weight_section.dart
++++ b/lib/features/weight_tracking/presentation/widgets/log_weight_section.dart
+@@ -146,15 +146,15 @@ class _LogWeightSectionState extends State<LogWeightSection> {
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+-          Text('Log Weight', style: AppTextStyles.font32BoldNearBlack),
++          Text('Log Weight', style: AppTextStyles.font24BoldNearBlack),
+           verticalSpace(8),
+           Text(
+             'Enter your current weight to track your progress.',
+             style: AppTextStyles.font14RegularDarkGray,
+           ),
+-          verticalSpace(40),
++          verticalSpace(24),
+           WeightInputCard(controller: _weightController),
+-          verticalSpace(40),
++          verticalSpace(24),
+           DateTimePickerRow(
+             selectedDate: _selectedDate,
+             selectedTime: _selectedTime,
+diff --git a/lib/features/weight_tracking/presentation/widgets/recent_entries_section.dart b/lib/features/weight_tracking/presentation/widgets/recent_entries_section.dart
+index b2ae80f..e5884ce 100644
+--- a/lib/features/weight_tracking/presentation/widgets/recent_entries_section.dart
++++ b/lib/features/weight_tracking/presentation/widgets/recent_entries_section.dart
+@@ -1,7 +1,11 @@
+ import 'package:flutter/material.dart';
++import 'package:flutter_bloc/flutter_bloc.dart';
++import 'package:weight_tracker/core/helper/extensions.dart';
++import 'package:weight_tracker/core/routing/routes.dart';
+ import 'package:weight_tracker/core/theming/colors.dart';
+ import 'package:weight_tracker/core/theming/styles.dart';
+ import 'package:weight_tracker/features/weight_tracking/domain/entities/weight_entry.dart';
++import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
+ import 'package:weight_tracker/features/weight_tracking/presentation/widgets/entry_list_view_items.dart';
+ 
+ class RecentEntriesSection extends StatelessWidget {
+@@ -18,7 +22,12 @@ class RecentEntriesSection extends StatelessWidget {
+           children: [
+             Text("Recent Entries", style: AppTextStyles.font16BoldVeryDarkGray),
+             TextButton(
+-              onPressed: () {},
++              onPressed: () {
++                context.pushNamed(Routes.sevenDaysTrend);
++                if (context.mounted) {
++                  context.read<WeightTrackingCubit>().loadDashboardData();
++                }
++              },
+               child: Text(
+                 "View All",
+                 style: AppTextStyles.font10BoldlightGray.copyWith(
+diff --git a/lib/features/weight_tracking/presentation/widgets/set_goal_body.dart b/lib/features/weight_tracking/presentation/widgets/set_goal_body.dart
+index c6f62bb..1d9d672 100644
+--- a/lib/features/weight_tracking/presentation/widgets/set_goal_body.dart
++++ b/lib/features/weight_tracking/presentation/widgets/set_goal_body.dart
+@@ -73,7 +73,7 @@ class _SetGoalBodyState extends State<SetGoalBody> {
+                       });
+                     },
+                   ),
+-                  verticalSpace(40),
++                  verticalSpace(28),
+                   TargetWeightCard(
+                     currentWeight: _currentWeight,
+                     targetWeight: _targetWeight,
+@@ -83,7 +83,7 @@ class _SetGoalBodyState extends State<SetGoalBody> {
+                       });
+                     },
+                   ),
+-                  verticalSpace(32),
++                  verticalSpace(24),
+                   TargetDateSection(
+                     selectedDate: _targetDate,
+                     onDateSelected: (date) {
+diff --git a/lib/features/weight_tracking/presentation/widgets/target_goal_and_current_streak.dart b/lib/features/weight_tracking/presentation/widgets/target_goal_and_current_streak.dart
+index ce32181..d89901d 100644
+--- a/lib/features/weight_tracking/presentation/widgets/target_goal_and_current_streak.dart
++++ b/lib/features/weight_tracking/presentation/widgets/target_goal_and_current_streak.dart
+@@ -38,7 +38,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
+       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+       decoration: BoxDecoration(
+         color: ColorsManager.surface,
+-        borderRadius: BorderRadius.circular(32.r),
++        borderRadius: BorderRadius.circular(24.r),
+         boxShadow: [
+           BoxShadow(
+             color: Colors.black.withValues(alpha: 0.03),
+@@ -51,7 +51,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           Container(
+-            padding: EdgeInsets.all(10.r),
++            padding: EdgeInsets.all(8.r),
+             decoration: const BoxDecoration(
+               shape: BoxShape.circle,
+               color: ColorsManager.lightGrayishGreen,
+@@ -61,7 +61,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
+               color: ColorsManager.nearBlack,
+             ),
+           ),
+-          verticalSpace(16),
++          verticalSpace(12),
+           Text(
+             "TARGET GOAL",
+             style: AppTextStyles.font12RegularGray.copyWith(letterSpacing: 1.2),
+@@ -110,7 +110,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
+       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+       decoration: BoxDecoration(
+         color: ColorsManager.surface,
+-        borderRadius: BorderRadius.circular(32.r),
++        borderRadius: BorderRadius.circular(24.r),
+         boxShadow: [
+           BoxShadow(
+             color: Colors.black.withValues(alpha: 0.03),
+@@ -133,7 +133,7 @@ class TargetGoalAndCurrentStreak extends StatelessWidget {
+               color: ColorsManager.darkOrange,
+             ),
+           ),
+-          verticalSpace(16),
++          verticalSpace(12),
+           Text(
+             "CURRENT\nSTREAK",
+             style: AppTextStyles.font12RegularGray.copyWith(
+diff --git a/lib/features/weight_tracking/presentation/widgets/target_weight_card.dart b/lib/features/weight_tracking/presentation/widgets/target_weight_card.dart
+index a6a7b08..a9d98ad 100644
+--- a/lib/features/weight_tracking/presentation/widgets/target_weight_card.dart
++++ b/lib/features/weight_tracking/presentation/widgets/target_weight_card.dart
+@@ -31,7 +31,7 @@ class TargetWeightCard extends StatelessWidget {
+             letterSpacing: 0.8,
+           ),
+         ),
+-        verticalSpace(20),
++        verticalSpace(16),
+ 
+         // Weight number + unit
+         Row(
+@@ -43,7 +43,7 @@ class TargetWeightCard extends StatelessWidget {
+               targetWeight.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), ''),
+               style: AppTextStyles.font72ExtraBoldVeryDarkGray.copyWith(
+                 color: ColorsManager.primaryBlue,
+-                fontSize: 64.sp,
++                fontSize: 48.sp,
+               ),
+             ),
+             horizontalSpace(6),
+@@ -59,7 +59,7 @@ class TargetWeightCard extends StatelessWidget {
+             ),
+           ],
+         ),
+-        verticalSpace(20),
++        verticalSpace(16),
+ 
+         // ─ / Current: 165 lbs / + row
+         Row(
+diff --git a/lib/features/weight_tracking/presentation/widgets/trend_card.dart b/lib/features/weight_tracking/presentation/widgets/trend_card.dart
+index 083e576..d51834d 100644
+--- a/lib/features/weight_tracking/presentation/widgets/trend_card.dart
++++ b/lib/features/weight_tracking/presentation/widgets/trend_card.dart
+@@ -23,7 +23,7 @@ class TrendCard extends StatelessWidget {
+       ),
+       decoration: BoxDecoration(
+         color: ColorsManager.darkLightGray,
+-        borderRadius: BorderRadius.circular(32.r),
++        borderRadius: BorderRadius.circular(24.r),
+         boxShadow: [
+           BoxShadow(
+             color: Colors.black.withValues(alpha: 0.1),
+diff --git a/lib/features/weight_tracking/presentation/widgets/weight_chart.dart b/lib/features/weight_tracking/presentation/widgets/weight_chart.dart
+index a0a56c9..74714c2 100644
+--- a/lib/features/weight_tracking/presentation/widgets/weight_chart.dart
++++ b/lib/features/weight_tracking/presentation/widgets/weight_chart.dart
+@@ -5,8 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
+ import 'package:weight_tracker/core/theming/colors.dart';
+ import 'package:weight_tracker/core/theming/styles.dart';
+ 
+-const _kChartHeight = 180.0;
+-const _kDayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
++const _kChartHeight = 220.0;
++const _kDayLabels = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+ const _kMinYPadding = 5.0;
+ const _kMaxYPadding = 10.0;
+ 
+@@ -30,9 +30,8 @@ class _WeightChartState extends State<WeightChart> {
+ 
+   // ── Computed helpers ────────────────────────────────────────────────────────
+ 
+-  int get _defaultIndex => widget.weeklyWeights.isEmpty
+-      ? -1
+-      : widget.weeklyWeights.length - 1;
++  int get _defaultIndex =>
++      widget.weeklyWeights.isEmpty ? -1 : widget.weeklyWeights.length - 1;
+ 
+   double get _minY =>
+       (widget.weeklyWeights.reduce(min) - _kMinYPadding).floorToDouble();
+@@ -43,74 +42,82 @@ class _WeightChartState extends State<WeightChart> {
+   // ── Interaction ─────────────────────────────────────────────────────────────
+ 
+   void _onBarTouch(FlTouchEvent event, BarTouchResponse? response) {
+-    final tapped = response?.spot?.touchedBarGroupIndex;
++    if (!event.isInterestedForInteractions ||
++        response == null ||
++        response.spot == null) {
++      return;
++    }
+     setState(() {
+-      _touchedIndex =
+-          (event.isInterestedForInteractions && tapped != null)
+-              ? tapped
+-              : _defaultIndex;
++      _touchedIndex = response.spot!.touchedBarGroupIndex;
+     });
+   }
+ 
+   // ── Chart data builders ─────────────────────────────────────────────────────
+ 
+   FlGridData get _gridData => FlGridData(
+-        show: true,
+-        drawVerticalLine: false,
+-        getDrawingHorizontalLine: (_) => FlLine(
+-          color: ColorsManager.lightGray.withValues(alpha: 0.3),
+-          strokeWidth: 1.w,
+-        ),
+-      );
++    show: true,
++    drawVerticalLine: false,
++    horizontalInterval: 10,
++    getDrawingHorizontalLine: (_) => FlLine(
++      color: ColorsManager.lightGray.withValues(alpha: 0.2),
++      strokeWidth: 1.w,
++    ),
++  );
+ 
+   FlTitlesData _titlesData(int barCount) => FlTitlesData(
+-        leftTitles: const AxisTitles(
+-          sideTitles: SideTitles(showTitles: false),
+-        ),
+-        topTitles: const AxisTitles(
+-          sideTitles: SideTitles(showTitles: false),
+-        ),
+-        rightTitles: const AxisTitles(
+-          sideTitles: SideTitles(showTitles: false),
+-        ),
+-        bottomTitles: AxisTitles(
+-          sideTitles: SideTitles(
+-            showTitles: true,
+-            getTitlesWidget: _buildDayLabel,
+-          ),
+-        ),
+-      );
++    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
++    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
++    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
++    bottomTitles: AxisTitles(
++      sideTitles: SideTitles(
++        showTitles: true,
++        reservedSize: 40.h,
++        getTitlesWidget: _buildDayLabel,
++      ),
++    ),
++  );
+ 
+   Widget _buildDayLabel(double value, TitleMeta meta) {
+     final index = value.toInt();
+-    if (index < 0 || index >= _kDayLabels.length) return const SizedBox.shrink();
++    if (index < 0 || index >= _kDayLabels.length) {
++      return const SizedBox.shrink();
++    }
+     final isSelected = index == _touchedIndex;
+     return Padding(
+-      padding: EdgeInsets.only(top: 8.h),
++      padding: EdgeInsets.only(top: 12.h),
+       child: Text(
+         _kDayLabels[index],
+         style: isSelected
+-            ? AppTextStyles.font14SemiBoldPrimaryBlue.copyWith(fontSize: 12.sp)
+-            : AppTextStyles.font12RegularGray,
++            ? AppTextStyles.font14SemiBoldPrimaryBlue.copyWith(
++                fontSize: 10.sp,
++                color: ColorsManager.royalBlue,
++                fontWeight: FontWeight.bold,
++              )
++            : AppTextStyles.font12RegularGray.copyWith(
++                fontSize: 10.sp,
++                color: ColorsManager.darkGray.withValues(alpha: 0.6),
++              ),
+       ),
+     );
+   }
+ 
+   BarTouchData get _touchData => BarTouchData(
+-        enabled: true,
+-        touchCallback: _onBarTouch,
+-        touchTooltipData: BarTouchTooltipData(
+-          getTooltipColor: (_) => Colors.transparent,
+-          tooltipPadding: EdgeInsets.zero,
+-          tooltipMargin: 4,
+-          getTooltipItem: (_, _, rod, _) => BarTooltipItem(
+-            '${rod.toY}',
+-            AppTextStyles.font14SemiBoldPrimaryBlue,
+-          ),
+-        ),
+-      );
++    enabled: true,
++    touchCallback: _onBarTouch,
++    handleBuiltInTouches: true,
++    touchTooltipData: BarTouchTooltipData(
++      getTooltipColor: (_) => ColorsManager.royalBlue,
++      tooltipPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
++      tooltipMargin: 8,
++      tooltipBorderRadius: BorderRadius.circular(8.r),
++      getTooltipItem: (_, _, rod, _) => BarTooltipItem(
++        '${rod.toY}',
++        AppTextStyles.font14BoldOnPrimary.copyWith(fontSize: 12.sp),
++      ),
++    ),
++  );
+ 
+-  BarChartGroupData _buildBarGroup(int index, double value, double barWidth) {
++  BarChartGroupData _buildBarGroup(int index, double value) {
+     final isSelected = index == _touchedIndex;
+     return BarChartGroupData(
+       x: index,
+@@ -118,12 +125,15 @@ class _WeightChartState extends State<WeightChart> {
+       barRods: [
+         BarChartRodData(
+           toY: value,
+-          color: isSelected ? ColorsManager.royalBlue : ColorsManager.grayishBlue,
+-          width: barWidth,
++          color: isSelected
++              ? ColorsManager.royalBlue
++              : ColorsManager.grayishBlue,
++          width: 42.w,
+           borderRadius: BorderRadius.only(
+             topLeft: Radius.circular(8.r),
+             topRight: Radius.circular(8.r),
+           ),
++          backDrawRodData: BackgroundBarChartRodData(show: false),
+         ),
+       ],
+     );
+@@ -142,27 +152,21 @@ class _WeightChartState extends State<WeightChart> {
+ 
+     return SizedBox(
+       height: _kChartHeight.h,
+-      child: LayoutBuilder(
+-        builder: (context, constraints) {
+-          final barWidth = constraints.maxWidth / widget.weeklyWeights.length;
+-          return BarChart(
+-            duration: Duration.zero,
+-            BarChartData(
+-              alignment: BarChartAlignment.center,
+-              groupsSpace: 0,
+-              minY: _minY,
+-              maxY: _maxY,
+-              borderData: FlBorderData(show: false),
+-              gridData: _gridData,
+-              titlesData: _titlesData(widget.weeklyWeights.length),
+-              barTouchData: _touchData,
+-              barGroups: List.generate(
+-                widget.weeklyWeights.length,
+-                (i) => _buildBarGroup(i, widget.weeklyWeights[i], barWidth),
+-              ),
+-            ),
+-          );
+-        },
++      child: BarChart(
++        duration: const Duration(milliseconds: 250),
++        BarChartData(
++          alignment: BarChartAlignment.spaceAround,
++          minY: _minY,
++          maxY: _maxY,
++          borderData: FlBorderData(show: false),
++          gridData: _gridData,
++          titlesData: _titlesData(widget.weeklyWeights.length),
++          barTouchData: _touchData,
++          barGroups: List.generate(
++            widget.weeklyWeights.length,
++            (i) => _buildBarGroup(i, widget.weeklyWeights[i]),
++          ),
++        ),
+       ),
+     );
+   }
+diff --git a/lib/features/weight_tracking/presentation/widgets/weight_goal_card.dart b/lib/features/weight_tracking/presentation/widgets/weight_goal_card.dart
+index f919c73..d0b6d08 100644
+--- a/lib/features/weight_tracking/presentation/widgets/weight_goal_card.dart
++++ b/lib/features/weight_tracking/presentation/widgets/weight_goal_card.dart
+@@ -34,14 +34,14 @@ class WeightGoalCard extends StatelessWidget {
+ 
+   @override
+   Widget build(BuildContext context) {
+-    final arcSize = 180.r;
++    final arcSize = 150.r;
+ 
+     return Container(
+       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+       width: double.infinity,
+       decoration: BoxDecoration(
+         color: ColorsManager.surface,
+-        borderRadius: BorderRadius.circular(32.r),
++        borderRadius: BorderRadius.circular(24.r),
+         boxShadow: [
+           BoxShadow(
+             color: Colors.black.withValues(alpha: 0.1),
+@@ -69,7 +69,7 @@ class WeightGoalCard extends StatelessWidget {
+               ),
+             ],
+           ),
+-          verticalSpace(48),
++          verticalSpace(24),
+ 
+           SizedBox(
+             width: arcSize,
+@@ -100,7 +100,7 @@ class WeightGoalCard extends StatelessWidget {
+             ),
+           ),
+ 
+-          verticalSpace(48),
++          verticalSpace(24),
+ 
+           // ── Current / Target row ──
+           Row(
+diff --git a/lib/features/weight_tracking/presentation/widgets/weight_summary_card.dart b/lib/features/weight_tracking/presentation/widgets/weight_summary_card.dart
+index 5e5deb1..78e0df4 100644
+--- a/lib/features/weight_tracking/presentation/widgets/weight_summary_card.dart
++++ b/lib/features/weight_tracking/presentation/widgets/weight_summary_card.dart
+@@ -25,7 +25,7 @@ class WeightSummaryCard extends StatelessWidget {
+ 
+     return Container(
+       width: double.infinity,
+-      padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
++      padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+       decoration: BoxDecoration(
+         gradient: RadialGradient(
+           center: Alignment.topRight,
+@@ -36,7 +36,7 @@ class WeightSummaryCard extends StatelessWidget {
+           ],
+           stops: const [0.0, 0.5],
+         ),
+-        borderRadius: BorderRadius.circular(32.r),
++        borderRadius: BorderRadius.circular(24.r),
+         boxShadow: [
+           BoxShadow(
+             color: Colors.black.withValues(alpha: 0.1),
+@@ -55,7 +55,7 @@ class WeightSummaryCard extends StatelessWidget {
+               color: ColorsManager.darkGray,
+             ),
+           ),
+-          SizedBox(height: 12.h),
++          SizedBox(height: 8.h),
+           Row(
+             mainAxisAlignment: MainAxisAlignment.center,
+             crossAxisAlignment: CrossAxisAlignment.baseline,
+@@ -63,18 +63,22 @@ class WeightSummaryCard extends StatelessWidget {
+             children: [
+               Text(
+                 displayWeight,
+-                style: AppTextStyles.font72ExtraBoldVeryDarkGray,
++                style: AppTextStyles.font48RegularPrimaryDeepBlue.copyWith(
++                  fontWeight: FontWeight.w800,
++                  color: ColorsManager.nearBlack,
++                ),
+               ),
+-              SizedBox(width: 8.w),
++              SizedBox(width: 6.w),
+               Text(
+                 'lbs',
+-                style: AppTextStyles.font24BoldNearBlack.copyWith(
++                style: AppTextStyles.font16RegularNearBlack.copyWith(
+                   color: ColorsManager.darkGray,
++                  fontWeight: FontWeight.w600,
+                 ),
+               ),
+             ],
+           ),
+-          SizedBox(height: 24.h),
++          SizedBox(height: 16.h),
+           Container(
+             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+             decoration: BoxDecoration(
+diff --git a/lib/main.dart b/lib/main.dart
+index 5acf34c..6140ae6 100644
+--- a/lib/main.dart
++++ b/lib/main.dart
+@@ -1,3 +1,5 @@
++import 'package:device_preview/device_preview.dart';
++import 'package:flutter/foundation.dart';
+ import 'package:flutter/material.dart';
+ import 'package:flutter_dotenv/flutter_dotenv.dart';
+ import 'package:supabase_flutter/supabase_flutter.dart';
+@@ -21,21 +23,20 @@ Future<void> main() async {
+     throw StateError('Missing SUPABASE_ANON_KEY in .env file.');
+   }
+ 
+-  await Supabase.initialize(
+-    url: supabaseUrl,
+-    anonKey: supabaseAnonKey,
+-  );
++  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+ 
+   await setupDependencyInjection();
+ 
+   final currentUser = Supabase.instance.client.auth.currentUser;
+-  final initialRoute =
+-      currentUser != null ? Routes.dashboardScreen : Routes.onboardingScreen;
++  final initialRoute = currentUser != null
++      ? Routes.mainScreen
++      : Routes.onboardingScreen;
+ 
+   runApp(
+-    WeightTrackerApp(
+-      appRouter: AppRouter(),
+-      initialRoute: initialRoute,
++    DevicePreview(
++      enabled: !kReleaseMode,
++      builder: (context) =>
++          WeightTrackerApp(appRouter: AppRouter(), initialRoute: initialRoute),
+     ),
+   );
+ }
+diff --git a/lib/weight_tracker_app.dart b/lib/weight_tracker_app.dart
+index 8d9363c..920ca4f 100644
+--- a/lib/weight_tracker_app.dart
++++ b/lib/weight_tracker_app.dart
+@@ -1,11 +1,19 @@
++import 'package:device_preview/device_preview.dart';
+ import 'package:flutter/material.dart';
++import 'package:flutter_bloc/flutter_bloc.dart';
+ import 'package:flutter_screenutil/flutter_screenutil.dart';
++import 'package:weight_tracker/core/di/dependency_injection.dart';
+ import 'package:weight_tracker/core/routing/app_router.dart';
++import 'package:weight_tracker/core/routing/routes.dart';
+ import 'package:weight_tracker/core/theming/colors.dart';
++import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
++import 'package:weight_tracker/features/auth/presentation/cubits/auth_state.dart';
++import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
+ 
+ class WeightTrackerApp extends StatelessWidget {
+   final AppRouter appRouter;
+   final String initialRoute;
++  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+ 
+   const WeightTrackerApp({
+     super.key,
+@@ -20,21 +28,42 @@ class WeightTrackerApp extends StatelessWidget {
+       minTextAdapt: true,
+       splitScreenMode: true,
+       builder: (context, child) {
+-        return MaterialApp(
+-          theme: ThemeData(
+-            scaffoldBackgroundColor: ColorsManager.veryLightGray,
+-
+-            fontFamily: "Manrope",
+-            appBarTheme: AppBarTheme(
+-              backgroundColor: ColorsManager.veryLightGray,
+-              surfaceTintColor: Colors.transparent,
+-              elevation: 0,
+-              scrolledUnderElevation: 0,
++        return BlocProvider<AuthCubit>(
++          create: (context) => getIt<AuthCubit>()..loadCurrentUser(),
++          child: BlocProvider<WeightTrackingCubit>(
++            create: (context) => getIt<WeightTrackingCubit>(),
++            child: BlocListener<AuthCubit, AuthState>(
++              listener: (context, state) {
++                if (state is AuthSuccess) {
++                  context.read<WeightTrackingCubit>().loadDashboardData();
++                } else if (state is AuthInitial) {
++                  context.read<WeightTrackingCubit>().reset();
++                  navigatorKey.currentState?.pushNamedAndRemoveUntil(
++                    Routes.loginScreen,
++                    (route) => false, // clears all previous routes
++                  );
++                }
++              },
++              child: MaterialApp(
++                locale: DevicePreview.locale(context),
++                builder: DevicePreview.appBuilder,
++                theme: ThemeData(
++                  scaffoldBackgroundColor: ColorsManager.veryLightGray,
++                  fontFamily: "Manrope",
++                  appBarTheme: AppBarTheme(
++                    backgroundColor: ColorsManager.veryLightGray,
++                    surfaceTintColor: Colors.transparent,
++                    elevation: 0,
++                    scrolledUnderElevation: 0,
++                  ),
++                ),
++                debugShowCheckedModeBanner: false,
++                onGenerateRoute: appRouter.generateRoute,
++                navigatorKey: navigatorKey,
++                initialRoute: initialRoute,
++              ),
+             ),
+           ),
+-          debugShowCheckedModeBanner: false,
+-          onGenerateRoute: appRouter.generateRoute,
+-          initialRoute: initialRoute,
+         );
+       },
+     );
+diff --git a/pubspec.lock b/pubspec.lock
+index 8d7da50..4617689 100644
+--- a/pubspec.lock
++++ b/pubspec.lock
+@@ -265,6 +265,22 @@ packages:
+       url: "https://pub.dev"
+     source: hosted
+     version: "0.7.12"
++  device_frame:
++    dependency: transitive
++    description:
++      name: device_frame
++      sha256: "7b2ebb2a09d6cc0f086b51bd1412d7be83e0170056a7290349169be41164c86a"
++      url: "https://pub.dev"
++    source: hosted
++    version: "1.4.0"
++  device_preview:
++    dependency: "direct main"
++    description:
++      name: device_preview
++      sha256: "88aa1cc73ee9a8ec771b309dcbc4000cc66b5d8456b825980997640ab1195bf5"
++      url: "https://pub.dev"
++    source: hosted
++    version: "1.3.1"
+   drift:
+     dependency: "direct main"
+     description:
+@@ -422,6 +438,11 @@ packages:
+       url: "https://pub.dev"
+     source: hosted
+     version: "6.0.0"
++  flutter_localizations:
++    dependency: transitive
++    description: flutter
++    source: sdk
++    version: "0.0.0"
+   flutter_screenutil:
+     dependency: "direct main"
+     description:
+@@ -448,6 +469,14 @@ packages:
+     description: flutter
+     source: sdk
+     version: "0.0.0"
++  freezed_annotation:
++    dependency: transitive
++    description:
++      name: freezed_annotation
++      sha256: "7294967ff0a6d98638e7acb774aac3af2550777accd8149c90af5b014e6d44d8"
++      url: "https://pub.dev"
++    source: hosted
++    version: "3.1.0"
+   functions_client:
+     dependency: transitive
+     description:
+diff --git a/pubspec.yaml b/pubspec.yaml
+index 73705ae..b579d40 100644
+--- a/pubspec.yaml
++++ b/pubspec.yaml
+@@ -31,6 +31,7 @@ dependencies:
+   connectivity_plus: ^7.1.1
+   cupertino_icons: ^1.0.8
+   dartz: ^0.10.1
++  device_preview: ^1.3.1
+   drift: ^2.31.0
+   drift_flutter: 0.2.8
+   equatable: ^2.0.5

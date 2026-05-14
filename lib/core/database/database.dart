@@ -11,8 +11,6 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
-  // ==================== WEIGHT ENTRIES CRUD ====================
-
   /// Create a new weight entry
   Future<int> createWeightEntry({
     required double weight,
@@ -31,21 +29,22 @@ class AppDatabase extends _$AppDatabase {
 
   /// Get all weight entries (ordered by date descending)
   Future<List<WeightEntry>> getAllWeightEntries() {
-    return (select(weightEntries)
-          ..orderBy([
-            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
-          ]))
+    return (select(weightEntries)..orderBy([
+          (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc),
+        ]))
         .get();
   }
 
   /// Get the latest weight entry
   Future<WeightEntry?> getLatestWeightEntry() async {
-    final result = await (select(weightEntries)
-          ..orderBy([
-            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
-          ])
-          ..limit(1))
-        .getSingleOrNull();
+    final result =
+        await (select(weightEntries)
+              ..orderBy([
+                (t) =>
+                    OrderingTerm(expression: t.date, mode: OrderingMode.desc),
+              ])
+              ..limit(1))
+            .getSingleOrNull();
     return result;
   }
 
@@ -55,7 +54,7 @@ class AppDatabase extends _$AppDatabase {
     return (select(weightEntries)
           ..where((t) => t.date.isBiggerOrEqual(Variable(cutoffDate)))
           ..orderBy([
-            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
+            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc),
           ]))
         .get();
   }
@@ -91,10 +90,11 @@ class AppDatabase extends _$AppDatabase {
 
   /// Get total number of weight entries
   Future<int> getWeightEntriesCount() async {
-    final result = await (selectOnly(weightEntries)
-          ..addColumns([weightEntries.id.count()]))
-        .map((row) => row.read<int>(weightEntries.id.count()))
-        .getSingleOrNull();
+    final result =
+        await (selectOnly(weightEntries)
+              ..addColumns([weightEntries.id.count()]))
+            .map((row) => row.read<int>(weightEntries.id.count()))
+            .getSingleOrNull();
     return result ?? 0;
   }
 }

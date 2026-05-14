@@ -31,7 +31,7 @@ class TargetWeightCard extends StatelessWidget {
             letterSpacing: 0.8,
           ),
         ),
-        verticalSpace(20),
+        verticalSpace(16),
 
         // Weight number + unit
         Row(
@@ -43,7 +43,7 @@ class TargetWeightCard extends StatelessWidget {
               targetWeight.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), ''),
               style: AppTextStyles.font72ExtraBoldVeryDarkGray.copyWith(
                 color: ColorsManager.primaryBlue,
-                fontSize: 64.sp,
+                fontSize: 48.sp,
               ),
             ),
             horizontalSpace(6),
@@ -59,7 +59,7 @@ class TargetWeightCard extends StatelessWidget {
             ),
           ],
         ),
-        verticalSpace(20),
+        verticalSpace(16),
 
         // ─ / Current: 165 lbs / + row
         Row(

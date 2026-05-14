@@ -15,7 +15,7 @@ class LogWeightBottomActions extends StatelessWidget {
       children: [
         AppTextButton(
           onPressed: onSave,
-          buttonHeight: 60,
+          buttonHeight: 52,
           borderRadius: 30,
           child: Text(
             'Save Entry',
@@ -24,7 +24,7 @@ class LogWeightBottomActions extends StatelessWidget {
             ),
           ),
         ),
-        verticalSpace(24),
+        verticalSpace(16),
         Center(
           child: Text(
             'DATA IS STORED LOCALLY ON THIS DEVICE',

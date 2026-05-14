@@ -6,17 +6,26 @@ import 'package:weight_tracker/features/auth/presentation/widgets/password_textf
 import '../../../../core/helper/spacing.dart';
 
 class NameEmailAndPasswordFields extends StatelessWidget {
-  const NameEmailAndPasswordFields({super.key});
+  final TextEditingController nameController;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+
+  const NameEmailAndPasswordFields({
+    super.key,
+    required this.nameController,
+    required this.emailController,
+    required this.passwordController,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FullNameTextField(),
+        FullNameTextField(controller: nameController),
         verticalSpace(24),
-        EmailAddressTextField(),
+        EmailAddressTextField(controller: emailController),
         verticalSpace(24),
-        PasswordTextField(),
+        PasswordTextField(controller: passwordController),
       ],
     );
   }

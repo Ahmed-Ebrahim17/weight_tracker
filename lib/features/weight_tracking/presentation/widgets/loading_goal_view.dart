@@ -110,7 +110,7 @@ class LoadingGoalView extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: 6,
                       itemExtent: 56,
-                      itemBuilder: (_, __) => Padding(
+                      itemBuilder: (_, _) => Padding(
                         padding: EdgeInsets.symmetric(horizontal: 6.w),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -161,11 +161,11 @@ class LoadingGoalView extends StatelessWidget {
       );
 
   Widget _circle(double size) => Container(
-        width: size,
-        height: size,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-      );
+    width: size,
+    height: size,
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+    ),
+  );
 }

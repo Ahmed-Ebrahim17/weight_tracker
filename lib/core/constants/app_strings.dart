@@ -38,7 +38,7 @@ class AppStrings {
 
   // Header Messages
   static const String welcomeBackLogin =
-      'Welcome back. Log in to continue your\njourney.';
+      'Welcome back.\nLog in to continue your journey.';
   static const String appTagline = 'Align your energy. Master your rest.';
 
   // Error Messages - Routing
@@ -75,4 +75,11 @@ class AppStrings {
   static const String deleteEntryWarning =
       'Are you sure you want to delete this weight entry? This action cannot be undone.';
   static const String delete = 'Delete';
+  static const String weightFluctuation = 'Weight Fluctuation';
+  static const String weeklySummary = 'Weekly Summary';
+  static const String highest = 'HIGHEST';
+  static const String lowest = 'LOWEST';
+  static const String average = 'AVERAGE';
+  static const String trendInsight = 'Trend Insight';
+  static const String dailyBreakdown = 'Daily Breakdown';
 }

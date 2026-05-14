@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weight_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:weight_tracker/core/error/failure.dart' as failures;
@@ -17,19 +16,13 @@ class AuthCubit extends Cubit<AuthState> {
   final GetCurrentUserUseCase getCurrentUserUseCase;
   final LogoutUseCase logoutUseCase;
 
-  final formKey = GlobalKey<FormState>();
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  
-
   AuthCubit({
     required this.emailLoginUseCase,
     required this.emailRegisterUseCase,
     required this.googleLoginUseCase,
     required this.getCurrentUserUseCase,
     required this.logoutUseCase,
-  }) : super( AuthInitial());
+  }) : super(AuthInitial());
 
   AuthUserEntity? get currentUser {
     final currentState = state;
@@ -118,13 +111,5 @@ class AuthCubit extends Cubit<AuthState> {
       failures.ServerFailure() => 'Server error. Please try again later.',
       failures.UnknownFailure() => 'Unexpected error. Please try again.',
     };
-  }
-
-  @override
-  Future<void> close() {
-    nameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    return super.close();
   }
 }

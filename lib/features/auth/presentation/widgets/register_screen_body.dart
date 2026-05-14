@@ -14,8 +14,26 @@ import 'package:weight_tracker/features/auth/presentation/widgets/terms_and_cond
 
 import '../../../../core/theming/styles.dart';
 
-class RegisterScreenBody extends StatelessWidget {
+class RegisterScreenBody extends StatefulWidget {
   const RegisterScreenBody({super.key});
+
+  @override
+  State<RegisterScreenBody> createState() => _RegisterScreenBodyState();
+}
+
+class _RegisterScreenBodyState extends State<RegisterScreenBody> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,17 +46,21 @@ class RegisterScreenBody extends StatelessWidget {
       ),
       child: SingleChildScrollView(
         child: Form(
-          key: context.read<AuthCubit>().formKey,
+          key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Center(child: AppLogoWithRegisterScreenHeader()),
               verticalSpace(32),
-              NameEmailAndPasswordFields(),
+              NameEmailAndPasswordFields(
+                nameController: _nameController,
+                emailController: _emailController,
+                passwordController: _passwordController,
+              ),
               verticalSpace(32),
               AppTextButton(
                 onPressed: () {
-                  validateThenDoSignup(context);
+                  _validateThenDoSignup();
                 },
                 buttonHeight: 60,
                 borderRadius: 48,
@@ -57,14 +79,14 @@ class RegisterScreenBody extends StatelessWidget {
       ),
     );
   }
-  void validateThenDoSignup(BuildContext context) {
-    final authCubit = context.read<AuthCubit>();
-    if (authCubit.formKey.currentState!.validate()) {
-      authCubit.registerWithEmail(
-        email: authCubit.emailController.text,
-        password: authCubit.passwordController.text,
-        fullName: authCubit.nameController.text,
-      );
+
+  void _validateThenDoSignup() {
+    if (_formKey.currentState!.validate()) {
+      context.read<AuthCubit>().registerWithEmail(
+            email: _emailController.text,
+            password: _passwordController.text,
+            fullName: _nameController.text,
+          );
     }
   }
 }

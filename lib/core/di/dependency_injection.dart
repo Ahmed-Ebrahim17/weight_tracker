@@ -19,13 +19,13 @@ import 'package:weight_tracker/features/weight_tracking/data/datasources/weight_
 import 'package:weight_tracker/features/weight_tracking/data/repositories/weight_tracking_repository_impl.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/repositories/weight_tracking_repository.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/add_weight_entry_usecase.dart';
-import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_all_entries_usecase.dart';
+
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_latest_entry_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_entries_last_n_days_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_total_entries_count_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/update_weight_entry_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/delete_weight_entry_usecase.dart';
-import 'package:weight_tracker/features/weight_tracking/domain/usecases/delete_all_entries_usecase.dart';
+
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_trend_last_n_days_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/save_target_goal_usecase.dart';
 import 'package:weight_tracker/features/weight_tracking/domain/usecases/get_target_goal_usecase.dart';
@@ -96,7 +96,7 @@ Future<void> setupDependencyInjection() async {
     () => LogoutUseCase(repository: getIt<AuthRepository>()),
   );
 
-  getIt.registerFactory<AuthCubit>(
+  getIt.registerLazySingleton<AuthCubit>(
     () => AuthCubit(
       emailLoginUseCase: getIt<EmailLoginUseCase>(),
       emailRegisterUseCase: getIt<EmailRegisterUseCase>(),
@@ -141,9 +141,7 @@ Future<void> setupDependencyInjection() async {
     () => AddWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  getIt.registerLazySingleton<GetAllEntriesUseCase>(
-    () => GetAllEntriesUseCase(repository: getIt<WeightTrackingRepository>()),
-  );
+
 
   getIt.registerLazySingleton<GetLatestEntryUseCase>(
     () => GetLatestEntryUseCase(repository: getIt<WeightTrackingRepository>()),
@@ -171,10 +169,7 @@ Future<void> setupDependencyInjection() async {
         DeleteWeightEntryUseCase(repository: getIt<WeightTrackingRepository>()),
   );
 
-  getIt.registerLazySingleton<DeleteAllEntriesUseCase>(
-    () =>
-        DeleteAllEntriesUseCase(repository: getIt<WeightTrackingRepository>()),
-  );
+
 
   getIt.registerLazySingleton<GetTrendLastNDaysUseCase>(
     () =>

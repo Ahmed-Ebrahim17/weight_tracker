@@ -146,15 +146,15 @@ class _LogWeightSectionState extends State<LogWeightSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Log Weight', style: AppTextStyles.font32BoldNearBlack),
+          Text('Log Weight', style: AppTextStyles.font24BoldNearBlack),
           verticalSpace(8),
           Text(
             'Enter your current weight to track your progress.',
             style: AppTextStyles.font14RegularDarkGray,
           ),
-          verticalSpace(40),
+          verticalSpace(24),
           WeightInputCard(controller: _weightController),
-          verticalSpace(40),
+          verticalSpace(24),
           DateTimePickerRow(
             selectedDate: _selectedDate,
             selectedTime: _selectedTime,

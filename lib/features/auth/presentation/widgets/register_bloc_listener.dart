@@ -30,7 +30,7 @@ class _RegisterBlocListenerState extends State<RegisterBlocListener> {
             break;
           case AuthSuccess _:
             _hideLoadingDialog(context);
-            context.pushReplacementNamed(Routes.dashboardScreen);
+            context.pushReplacementNamed(Routes.mainScreen);
             break;
           case AuthFailure(:final message):
             _hideLoadingDialog(context);

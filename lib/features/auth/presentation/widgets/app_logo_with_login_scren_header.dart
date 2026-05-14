@@ -12,10 +12,15 @@ class AppLogoWithLoginScreenHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SvgPicture.asset(AppAssets.appLogo, height: 48.h),
         verticalSpace(24),
-        Text(AppStrings.appName, style: AppTextStyles.font32BoldNearBlack),
+        Text(
+          AppStrings.appName,
+          textAlign: TextAlign.center,
+          style: AppTextStyles.font32BoldNearBlack,
+        ),
         verticalSpace(12),
         Text(
           AppStrings.welcomeBackLogin,

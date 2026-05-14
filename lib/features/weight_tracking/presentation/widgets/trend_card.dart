@@ -23,7 +23,7 @@ class TrendCard extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: ColorsManager.darkLightGray,
-        borderRadius: BorderRadius.circular(32.r),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),

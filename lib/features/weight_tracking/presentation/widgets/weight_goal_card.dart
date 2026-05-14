@@ -34,14 +34,14 @@ class WeightGoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final arcSize = 180.r;
+    final arcSize = 150.r;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
       width: double.infinity,
       decoration: BoxDecoration(
         color: ColorsManager.surface,
-        borderRadius: BorderRadius.circular(32.r),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -69,7 +69,7 @@ class WeightGoalCard extends StatelessWidget {
               ),
             ],
           ),
-          verticalSpace(48),
+          verticalSpace(24),
 
           SizedBox(
             width: arcSize,
@@ -100,7 +100,7 @@ class WeightGoalCard extends StatelessWidget {
             ),
           ),
 
-          verticalSpace(48),
+          verticalSpace(24),
 
           // ── Current / Target row ──
           Row(

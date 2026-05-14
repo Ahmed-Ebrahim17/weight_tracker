@@ -73,7 +73,7 @@ class _SetGoalBodyState extends State<SetGoalBody> {
                       });
                     },
                   ),
-                  verticalSpace(40),
+                  verticalSpace(28),
                   TargetWeightCard(
                     currentWeight: _currentWeight,
                     targetWeight: _targetWeight,
@@ -83,7 +83,7 @@ class _SetGoalBodyState extends State<SetGoalBody> {
                       });
                     },
                   ),
-                  verticalSpace(32),
+                  verticalSpace(24),
                   TargetDateSection(
                     selectedDate: _targetDate,
                     onDateSelected: (date) {

@@ -6,7 +6,6 @@ import 'package:weight_tracker/core/helper/spacing.dart';
 import 'package:weight_tracker/core/routing/routes.dart';
 import 'package:weight_tracker/core/theming/colors.dart';
 import 'package:weight_tracker/core/theming/styles.dart';
-import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_cubit.dart';
 import 'package:weight_tracker/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/cubits/weight_tracking_state.dart';
 import 'package:weight_tracker/features/weight_tracking/presentation/widgets/target_goal_and_current_streak.dart';
@@ -29,7 +28,12 @@ class DashboardLoadedView extends StatelessWidget {
     return Scaffold(
       backgroundColor: ColorsManager.veryLightGray,
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+        padding: EdgeInsets.only(
+          left: 20.w,
+          right: 20.w,
+          top: 20.h,
+          bottom: 80.h,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -45,42 +49,27 @@ class DashboardLoadedView extends StatelessWidget {
                 );
               },
             ),
-            verticalSpace(20),
+            verticalSpace(16),
             WeightSummaryCard(
               currentWeight: state.latestWeight,
               weeklyChange: state.sevenDayTrend,
             ),
-            verticalSpace(20),
+            verticalSpace(16),
             TrendCard(
               weeklyWeights: weeklyWeights,
               onViewDetails: () async {
-                await context.pushNamed(Routes.historyScreen);
-                if (context.mounted) {
-                  context.read<WeightTrackingCubit>().loadDashboardData();
-                }
+                await context.pushNamed(Routes.sevenDaysTrend);
               },
             ),
-            verticalSpace(20),
+            verticalSpace(16),
             TargetGoalAndCurrentStreak(
               totalEntries: state.totalEntries,
               targetGoal: state.targetWeight ?? 135,
               currentWeight: state.latestWeight ?? 135,
               startingWeight: state.startingWeight,
             ),
-            verticalSpace(20),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        shape: const CircleBorder(),
-        onPressed: () async {
-          await context.pushNamed(Routes.addWeightScreen);
-          if (context.mounted) {
-            context.read<WeightTrackingCubit>().loadDashboardData();
-          }
-        },
-        backgroundColor: ColorsManager.primaryBlue,
-        child: Icon(Icons.add, color: ColorsManager.onPrimary),
       ),
     );
   }

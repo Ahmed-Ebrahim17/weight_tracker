@@ -41,14 +41,14 @@ class DeleteEntryBottomSheet extends StatelessWidget {
             style: AppTextStyles.font24BoldNearBlack,
             textAlign: TextAlign.center,
           ),
-          verticalSpace(16),
+          verticalSpace(12),
           // Message
           Text(
             AppStrings.deleteEntryWarning,
             style: AppTextStyles.font14RegularDarkGray,
             textAlign: TextAlign.center,
           ),
-          verticalSpace(32),
+          verticalSpace(24),
           // Actions
           AppTextButton(
             backgroundColor: ColorsManager.red,
@@ -74,7 +74,7 @@ class DeleteEntryBottomSheet extends StatelessWidget {
               ),
             ),
           ),
-          verticalSpace(16),
+          verticalSpace(12),
         ],
       ),
     );
